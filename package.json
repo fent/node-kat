@@ -1,7 +1,7 @@
 {
   "name": "kat",
-  "description": "explanation",
-  "keywords": ["one"],
+  "description": "File and stream concatenation the right way.",
+  "keywords": ["file", "read", "stream", "concat"],
   "version": "0.1.0",
   "repository": {
     "type": "git",
