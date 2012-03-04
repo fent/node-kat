@@ -17,9 +17,9 @@ readstream.pipe(fs.createWriteStream('file1n2.txt'));
 `readstream` will emit `data`, `err` and `end` events like a regular readstream should. `pause()` and `resume()` can also be called on it.
 
 # When you should use this
-You might be thinking this module is way too simple to even be a module. I was thinking the same thing until I thought about how this type of module shoul really work.
+You might be thinking this module is way too simple to even be a module. I was thinking the same thing until I thought about how this type of module should really work.
 
-I've seen several modules where their API allow developers to pass in data by passing in a file path to a method.
+There are several node modules where their API allow developers to pass in file data by passing in a file path to a method.
 
 ```js
 foo.read('myfile.json', function(err, result) {
@@ -48,7 +48,7 @@ var stream = fs.createReadStream('myfile.json').pipe(zlib.createDeflate());
 foo.read(stream);
 ```
 
-This way the module can be used in a server that allows file uploads without the server having to save the entire file to disc.
+The module could even be used in a server that allows file uploads without the server having to save the entire file to disc.
 
 ```js
 require('http').createServer(function(req, res) {
@@ -58,7 +58,7 @@ require('http').createServer(function(req, res) {
 });
 ```
 
-But ideally, you want to make your module API as convenient as possible for other developers. It's really common for your module to receive streams that are local file read streams made with `fs.createReadStream`. Thus it would be convenient to allow your module users to give your module a file path OR a readable stream.
+But ideally, we want to make our module APIs as convenient as possible for other developers. It's really common for a module to receive streams that are local file read streams made with `fs.createReadStream`. Thus it would be convenient to allow its users to give the module a file path OR a readable stream.
 
 ```js
 // pass in a file path
