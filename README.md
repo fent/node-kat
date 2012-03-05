@@ -94,22 +94,29 @@ Now the bar instance will get all the data from the files it needs, in order, an
 Creates a new instance of Kat. Passing in files to the constructor is a shortcut to `Kat#add`. Last argument will be considered options object if not a string or a stream. Options defaults to
 
 ```js
+// will be used whenever a file is opened
 { flags: 'r'
 , mode: 438
 , encoding: null
+
+// can be used to select what part of the concatenated file will be read
+// even if that means skipping files entirely
 , start: 0
 , end: Infinity
+
+// if true, will keep reading any additional streams if there is an error
+// if false, will stop and destroy all streams as soon as there is one error
 , continueOnErr: false
+
 , allowFiles: true
 , allowDirs: true
 , allowStreams: true
 , concurrency: 250
+
+// if true, will emit `end` when it finishes reading all streams
+, autoEnd: true
 }
 ```
-
-`flags` and `mode` will be used whenever a file is opened. Setting encoding will ensure `data` events will be emitted with the preferred encoding. `start` and `end` can be used to select what part of the concactenated file will be read, even if that means skipping files entirely.
-
-`continueOnErr` will keep reading the next streams even if there is an error in one. If false, will stop and destroy all streams as soon as there is one error.
 
 ### Kat#add(file...)
 Adds argument list to the list of files that will be concatenated. `file` can be a string to a path of a file, a folder, or a readable stream. If it's a folder, all files in it will be recursively added alphabetically.
