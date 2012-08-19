@@ -124,25 +124,29 @@ Adds argument list to the list of files that will be concatenated. `file` can be
 # Events
 
 ### Event: 'fd'
-`function (fd, filepath) { }`
+* `number` - File descriptor.
+* `string` - File path.
 
 When a file descriptor is opened, this will be emitted. In case a stream is added, `filepath` will be the item index relative to all other items in the list.
 
 ### Event: 'close'
-`function (filepath) { }`
+* `string` - File path.
+
 Emitted when a file descriptor is closed.
 
 ### Event: 'start'
-`function (filepath) { }`
+* `string` - File path.
+
 Emitted when the Kat instance starts reading from a stream.
 
 ### Event: 'end'
-`function () { }`
+
 Emitted when all streams have been read.
 
 ### Event: 'files'
-`function (files) { }`
-Emitted right before the `end` event. `files` will be an array of objects containing a `path` and `size` key.
+* `Array.Object` - Will be an array of objects containing a `path` and `size` key.
+
+Emitted right before the `end` event.
 
 ```js
 [ { path: "/home/user/files/somefile.txt", size: 324 }
@@ -151,7 +155,8 @@ Emitted right before the `end` event. `files` will be an array of objects contai
 ```
 
 ### Event: 'error'
-`function (err) { }`
+* `Error`
+
 When there is an error opening a file, reading from it, or with a stream.
 
 
