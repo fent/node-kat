@@ -128,7 +128,7 @@ Adds argument list to the list of files that will be concatenated. `file` can be
 * `number` - File descriptor.
 * `string` - File path.
 
-When a file descriptor is opened, this will be emitted. In case a stream is added, `filepath` will be the item index relative to all other items in the list.
+When a file descriptor is opened, this will be emitted. In case a non-file readable stream is added, `filepath` will be the item index relative to all other items in the list.
 
 ### Event: 'close'
 * `string` - File path.
