@@ -91,13 +91,14 @@ Now the bar instance will get all the data from the files it needs, in order, an
 
 # API
 ### new Kat([file1...], [options])
-Creates a new instance of Kat. Passing in files to the constructor is a shortcut to `Kat#add`. Last argument will be considered options object if not a string or a stream. Options defaults to
+Creates a new instance of Kat. Passing in files to the constructor is a shortcut to the `Kat#add()` method. Last argument will be considered options object if not a string or a stream. Options defaults to
 
 ```js
 // will be used whenever a file is opened
 { flags: 'r'
-, mode: 438
 , encoding: null
+, mode: 438
+, bufferSize: 64 * 1024
 
 // can be used to select what part of the concatenated file will be read
 // even if that means skipping files entirely
