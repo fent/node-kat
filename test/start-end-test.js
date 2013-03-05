@@ -42,11 +42,6 @@ function macro() {
 
     it('Returns correct file data', function() {
       assert.ok(Array.isArray(files), 'files var must be an array');
-      if (files.length !== expectedFiles.length) {
-        console.log('\nshit', files.length, expectedFiles.length)
-        console.log(files);
-        console.log(expectedFiles);
-      }
       assert.equal(files.length, expectedFiles.length);
       assert.deepEqual(files, expectedFiles);
     });
