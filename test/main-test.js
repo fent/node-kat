@@ -22,6 +22,7 @@ describe('Concat 2 files', function() {
     });
 
     kat.on('end', done);
+    kat.resume();
   });
 
   it('Correctly emits data in order', function(done) {
@@ -50,6 +51,7 @@ describe('Concat 2 files', function() {
       });
 
       kat.on('end', done);
+      kat.resume();
     });
 
     it('Correctly emits data in order', function(done) {
@@ -84,6 +86,7 @@ describe('Concat a file and files inside a directory', function() {
     });
 
     kat.on('end', done);
+    kat.resume();
   });
 
   it('Data correctly ordered', function(done) {
@@ -119,6 +122,7 @@ describe('Concat a file and files inside a directory', function() {
       });
 
       kat.on('end', done);
+      kat.resume();
     });
 
     it('Data correctly ordered', function(done) {
@@ -138,26 +142,4 @@ describe('Concat a file and files inside a directory', function() {
     });
   });
 
-});
-
-
-describe('Call Kat#pause() before adding a file', function() {
-  var kat = new Kat();
-  kat.pause();
-  kat.add(file1);
-
-  it('Continues after unpaused', function(done) {
-    var data = '';
-
-    kat.on('data', function(chunk) {
-      data += chunk.toString();
-    });
-
-    kat.on('end', function() {
-      assert.equal(data, 'hello\n');
-      done();
-    });
-
-    setTimeout(kat.resume.bind(kat), 150);
-  });
 });
