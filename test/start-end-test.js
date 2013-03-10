@@ -1,15 +1,15 @@
-var Kat = require('..')
-  , assert = require('assert')
-  , fs = require('fs')
-  , path = require('path')
+var Kat    = require('..');
+var assert = require('assert');
+var fs     = require('fs');
+var path   = require('path');
 
 
-var file1 = path.join(__dirname, 'files', 'file1.txt')
-  , file2 = path.join(__dirname, 'files', 'file2.txt')
-  , file3 = path.join(__dirname, 'files', 'dog.log')
+var file1 = path.join(__dirname, 'files', 'file1.txt');
+var file2 = path.join(__dirname, 'files', 'file2.txt');
+var file3 = path.join(__dirname, 'files', 'dog.log');
 
 
-// macro
+// Macro.
 function macro() {
   var args = Array.prototype.slice.call(arguments);
   var expectedFiles = args.pop();
@@ -17,7 +17,7 @@ function macro() {
   var options = args.pop();
   var files;
 
-  // pause possible given streams
+  // Pause possible given streams.
   args.forEach(function(f) { if (f.pause) f.pause(); });
 
   return function() {
