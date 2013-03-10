@@ -25,6 +25,7 @@ describe('Set allowFiles to off', function() {
       kat.on('end', function() {
         throw new Error('should not end');
       });
+      kat.resume();
     });
   });
 
@@ -35,6 +36,7 @@ describe('Set allowFiles to off', function() {
       });
 
       kat.on('end', done);
+      kat.resume();
     });
   });
 });
@@ -56,6 +58,7 @@ describe('Set allowDirs to off', function() {
       kat.on('end', function() {
         throw new Error('should not end');
       });
+      kat.resume();
     });
   });
 
@@ -66,6 +69,7 @@ describe('Set allowDirs to off', function() {
       });
 
       kat.on('end', done);
+      kat.resume();
     });
   });
 });
@@ -87,6 +91,7 @@ describe('Set allowStreams to off', function() {
       kat.on('end', function() {
         throw new Error('should not end');
       });
+      kat.resume();
     });
   });
 
@@ -97,6 +102,7 @@ describe('Set allowStreams to off', function() {
       });
 
       kat.on('end', done);
+      kat.resume();
     });
   });
 });
