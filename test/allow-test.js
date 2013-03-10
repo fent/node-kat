@@ -1,13 +1,12 @@
-var Kat = require('..')
-  , assert = require('assert')
-  , fs = require('fs')
-  , path = require('path')
+var Kat    = require('..');
+var assert = require('assert');
+var fs     = require('fs');
+var path   = require('path');
 
 
-var file1 = path.join(__dirname, 'files', 'file1.txt')
-  , file2 = path.join(__dirname, 'files', 'file2.txt')
-  , dir1 = path.join(__dirname, 'files', 'dir1')
-  , dir2 = path.join(__dirname, 'files', 'dir2')
+var file1 = path.join(__dirname, 'files', 'file1.txt');
+var file2 = path.join(__dirname, 'files', 'file2.txt');
+var dir1  = path.join(__dirname, 'files', 'dir1');
 
 
 describe('Set allowFiles to off', function() {

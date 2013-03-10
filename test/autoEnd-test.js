@@ -1,11 +1,10 @@
-var Kat = require('..')
-  , assert = require('assert')
-  , fs = require('fs')
-  , path = require('path')
+var Kat    = require('..');
+var assert = require('assert');
+var path   = require('path');
 
 
-var file1 = path.join(__dirname, 'files', 'file1.txt')
-  , file2 = path.join(__dirname, 'files', 'file2.txt')
+var file1 = path.join(__dirname, 'files', 'file1.txt');
+var file2 = path.join(__dirname, 'files', 'file2.txt');
 
 
 describe('Set autoEnd to off', function() {

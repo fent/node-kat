@@ -1,12 +1,11 @@
-var Kat = require('..')
-  , assert = require('assert')
-  , fs = require('fs')
-  , path = require('path')
+var Kat = require('..');
+var assert = require('assert');
+var path = require('path');
 
 
-var file1 = path.join(__dirname, 'files', 'file1.txt')
-  , badfile = path.join(__dirname, 'files', 'idontexist!.what')
-  , file2 = path.join(__dirname, 'files', 'file2.txt')
+var file1 = path.join(__dirname, 'files', 'file1.txt');
+var badfile = path.join(__dirname, 'files', 'idontexist!.what');
+var file2 = path.join(__dirname, 'files', 'file2.txt');
 
 
 describe('Try to concat a nonexistant file with continueOnErr', function() {
@@ -34,11 +33,11 @@ describe('Try to concat a nonexistant file with continueOnErr', function() {
     it('Stops emitting on error', function(done) {
       var kat = new Kat(file1, badfile, file2);
 
-      kat.on('error', function(err) {
+      kat.on('error', function() {
         done();
       });
 
-      // end should never be emitted
+      // End should never be emitted.
       kat.on('end', function() {
         done(new Error('end should no be emitted!'));
       });

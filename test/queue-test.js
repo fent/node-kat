@@ -1,8 +1,8 @@
-var Q = require('../lib/queue')
-  , assert = require('assert')
+var Q = require('../lib/queue');
+var assert = require('assert');
 
 
-// shuffles an array
+// Shuffles an array.
 function shuffle(arr) {
   var i = this.length, j, tmp;
   if (i === 0) return;
@@ -14,7 +14,7 @@ function shuffle(arr) {
   }
 }
 
-// calls pushed callbacks in random order once they are all pushed
+// Calls pushed callbacks in random order once they are all pushed.
 function randomCall(c, list) {
   this.callbacks = [];
   this.c = c;
@@ -33,9 +33,9 @@ randomCall.prototype.push = function(callback) {
       cb();
     }
   }
-}
+};
 
-// macro
+// Macro.
 function createQ(c, inject, amount) {
   var list = ['a', 'b', 'c'];
   var random1 = new randomCall(c, list);
@@ -48,7 +48,7 @@ function createQ(c, inject, amount) {
       var num = this.num;
 
       random1.push(function() {
-        // check for inject
+        // Check for inject.
         if (typeof inject === 'number' && inject === num && noin) {
           noin = false;
           amount = amount || 1;
@@ -75,7 +75,7 @@ function createQ(c, inject, amount) {
     list.forEach(q.push.bind(q));
 
 
-  }
+  };
 }
 
 describe('Queue jobs', function() {
