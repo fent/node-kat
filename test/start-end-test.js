@@ -41,8 +41,8 @@ function macro() {
     });
 
     it('Returns correct file data', function() {
-      assert.ok(Array.isArray(files), 'files var must be an array');
-      assert.equal(files.length, expectedFiles.length);
+      assert.ok(files, '`files` event not fired');
+      assert.ok(Array.isArray(files), '`files` must be an array');
       assert.deepEqual(files, expectedFiles);
     });
   };
