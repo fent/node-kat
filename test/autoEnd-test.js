@@ -21,5 +21,10 @@ describe('Set autoEnd to off', function() {
       });
     });
 
+    kat.on('end', function() {
+      throw new Error('should not end');
+    });
+    kat.resume();
+
   });
 });
