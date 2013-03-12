@@ -22,7 +22,6 @@
   "devDependencies": {
     "mocha": "x"
   },
-  "engines": { "node": ">=0.9.11" },
   "licenses": [ {
     "type": "MIT",
     "url" : "http://github.com/fent/node-kat/raw/master/LICENSE"
