@@ -6,6 +6,7 @@ var path   = require('path');
 
 var file1 = path.join(__dirname, 'files', 'file1.txt');
 var file2 = path.join(__dirname, 'files', 'file2.txt');
+var file3 = path.join(__dirname, 'files', 'file3.txt');
 var dir1  = path.join(__dirname, 'files', 'dir1');
 var dir2  = path.join(__dirname, 'files', 'dir2');
 
@@ -66,6 +67,80 @@ describe('Concat 2 files', function() {
         assert.equal(data, 'hello\nworld!!\n');
         done();
       });
+    });
+  });
+});
+
+describe('Concat empty file', function() {
+  it('Emits correct filesize data', function(done) {
+    var kat = new Kat(file3);
+
+    kat.on('files', function(files) {
+      assert.deepEqual(files, [
+      ]);
+    });
+
+    kat.on('end', done);
+    kat.resume();
+  });
+
+  describe('preceeded by non-empty file', function() {
+    it('Emits correct filesize data', function(done) {
+      var kat = new Kat(file1, file3);
+
+      kat.on('files', function(files) {
+        assert.deepEqual(files, [
+          { path: file1, size: 6 }
+        ]);
+      });
+
+      kat.on('end', done);
+      kat.resume();
+    });
+  });
+
+  describe('followed by non-empty file', function() {
+    it('Emits correct filesize data', function(done) {
+      var kat = new Kat(file3, file1);
+
+      kat.on('files', function(files) {
+        assert.deepEqual(files, [
+          { path: file1, size: 6 }
+        ]);
+      });
+
+      kat.on('end', done);
+      kat.resume();
+    });
+  });
+
+  describe('preceed and followed by empty files', function() {
+    it('Emits correct filesize data', function(done) {
+      var kat = new Kat(file3, file3, file3);
+
+      kat.on('files', function(files) {
+        assert.deepEqual(files, [
+        ]);
+      });
+
+      kat.on('end', done);
+      kat.resume();
+    });
+  });
+
+  describe('preceed and followed by non empty files', function() {
+    it('Emits correct filesize data', function(done) {
+      var kat = new Kat(file1, file3, file2);
+
+      kat.on('files', function(files) {
+        assert.deepEqual(files, [
+          { path: file1, size: 6 }
+        , { path: file2, size: 8 }
+        ]);
+      });
+
+      kat.on('end', done);
+      kat.resume();
     });
   });
 });
