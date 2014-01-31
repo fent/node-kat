@@ -6,7 +6,7 @@ var path   = require('path');
 
 var file1 = path.join(__dirname, 'files', 'file1.txt');
 var file2 = path.join(__dirname, 'files', 'file2.txt');
-var file3 = path.join(__dirname, 'files', 'file3.txt');
+var file3 = path.join(__dirname, 'files', 'empty.txt');
 var dir1  = path.join(__dirname, 'files', 'dir1');
 var dir2  = path.join(__dirname, 'files', 'dir2');
 
