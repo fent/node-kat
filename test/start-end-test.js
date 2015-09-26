@@ -52,89 +52,89 @@ function macro() {
 describe('Set start', function() {
   describe('in the 1st file',
            macro(file1, file2, { start: 2 }, 'llo\nworld!!\n', [
-                   { path: file1, size: 4 }
-                 , { path: file2, size: 8 }
-                 ]));
+             { path: file1, size: 4 },
+             { path: file2, size: 8 }
+           ]));
 
   describe('in the 1st file with stream in the', function() {
 
     describe('beginning', macro(fs.createReadStream(file1), file2, file3,
                                 { start: 2 }, 'llo\nworld!!\ndog\n', [
-                                  { path: file1, size: 4 }
-                                , { path: file2, size: 8 }
-                                , { path: file3, size: 4 }
+                                  { path: file1, size: 4 },
+                                  { path: file2, size: 8 },
+                                  { path: file3, size: 4 }
                                 ]));
 
     describe('middle', macro(file1, fs.createReadStream(file2), file3,
                              { start: 2 }, 'llo\nworld!!\ndog\n', [
-                               { path: file1, size: 4 }
-                             , { path: file2, size: 8 }
-                             , { path: file3, size: 4 }
+                               { path: file1, size: 4 },
+                               { path: file2, size: 8 },
+                               { path: file3, size: 4 }
                              ]));
 
     describe('end', macro(file1, file2, fs.createReadStream(file3),
                           { start: 2 }, 'llo\nworld!!\ndog\n', [
-                            { path: file1, size: 4 }
-                          , { path: file2, size: 8 }
-                          , { path: file3, size: 4 }
+                            { path: file1, size: 4 },
+                            { path: file2, size: 8 },
+                            { path: file3, size: 4 }
                           ]));
 
   });
 
   describe('inbetween the 1st and 2nd file',
            macro(file1, file2, file3, { start: 6 }, 'world!!\ndog\n', [
-                   { path: file2, size: 8 }
-                 , { path: file3, size: 4 }
-                 ]));
+             { path: file2, size: 8 },
+             { path: file3, size: 4 }
+           ]));
 
   describe('inbetween the 1st and 2nd file with stream in the', function() {
 
     describe('beginning',
              macro(fs.createReadStream(file1), file2, file3, { start: 6 },
                    'world!!\ndog\n', [
-                     { path: file2, size: 8 }
-                   , { path: file3, size: 4 }
+                     { path: file2, size: 8 },
+                     { path: file3, size: 4 }
                    ]));
 
     describe('middle',
              macro(file1, fs.createReadStream(file2), file3, { start: 6 },
                    'world!!\ndog\n', [
-                     { path: file2, size: 8 }
-                   , { path: file3, size: 4 }
+                     { path: file2, size: 8 },
+                     { path: file3, size: 4 }
                    ]));
 
     describe('end',
              macro(file1, file2, fs.createReadStream(file3), { start: 6 },
                    'world!!\ndog\n', [
-                     { path: file2, size: 8 }
-                   , { path: file3, size: 4 }
+                     { path: file2, size: 8 },
+                     { path: file3, size: 4 }
                    ]));
 
   });
 
   describe('in the 2nd file',
            macro(file1, file2, { start: 7 }, 'orld!!\n', [
-                   { path: file2, size: 7 }
-                 ]));
+             { path: file2, size: 7 }
+           ]));
 
   describe('in the 2nd file with stream in the', function() {
 
     describe('beginning', macro(fs.createReadStream(file1), file2, file3,
                                 { start: 7 }, 'orld!!\ndog\n', [
-                                  { path: file2, size: 7 }
-                                , { path: file3, size: 4 }
+                                  { path: file2, size: 7 },
+                                  { path: file3, size: 4 }
                                 ]));
 
     describe('middle', macro(file1, fs.createReadStream(file2), file3,
                              { start: 7 }, 'orld!!\ndog\n', [
-                               { path: file2, size: 7 }
-                             , { path: file3, size: 4 }
+                               { path: file2, size: 7 },
+                               { path: file3, size: 4 }
                              ]));
 
     describe('end', macro(file1, file2, fs.createReadStream(file3),
                           { start: 7 }, 'orld!!\ndog\n', [
-                            { path: file2, size: 7 }
-                          , { path: file3, size: 4 }
+                            { path: file2, size: 7 },
+                            { path: file3, size: 4 }
                           ]));
 
   });
@@ -145,8 +145,8 @@ describe('Set start', function() {
 describe('Set end', function() {
   describe('in the 1st file',
            macro(file1, file2, { end: 3 }, 'hell', [
-                   { path: file1, size: 4 }
-                 ]));
+             { path: file1, size: 4 }
+           ]));
 
   describe('in the 1st file with stream in the', function() {
 
@@ -169,10 +169,10 @@ describe('Set end', function() {
 
   describe('inbetween the 1st and 2nd file',
            macro(file1, file2, file3, { end: 5 }, 'hello\n', [
-                   { path: file1, size: 6 }
-                 ]));
+             { path: file1, size: 6 }
+           ]));
 
-  describe('inbtween the 1st and 2nd file with stream in the', function() {
+  describe('inbetween the 1st and 2nd file with stream in the', function() {
 
     describe('beginning', macro(fs.createReadStream(file1), file2, file3,
                                 { end: 5 }, 'hello\n', [
@@ -193,28 +193,28 @@ describe('Set end', function() {
 
   describe('in the 2nd file',
            macro(file1, file2, { end: 8 }, 'hello\nwor', [
-                   { path: file1, size: 6 }
-                 , { path: file2, size: 3 }
+                   { path: file1, size: 6 },
+                   { path: file2, size: 3 }
                  ]));
 
   describe('in the 2nd file with stream in the', function() {
 
     describe('beginning', macro(fs.createReadStream(file1), file2, file3,
                                 { end: 10 }, 'hello\nworld', [
-                                  { path: file1, size: 6 }
-                                , { path: file2, size: 5 }
+                                  { path: file1, size: 6 },
+                                  { path: file2, size: 5 }
                                 ]));
 
     describe('middle', macro(file1, fs.createReadStream(file2), file3,
                              { end: 10 }, 'hello\nworld', [
-                               { path: file1, size: 6 }
-                             , { path: file2, size: 5 }
+                               { path: file1, size: 6 },
+                               { path: file2, size: 5 }
                              ]));
 
     describe('end', macro(file1, file2, fs.createReadStream(file3),
                           { end: 10 }, 'hello\nworld', [
-                            { path: file1, size: 6 }
-                          , { path: file2, size: 5 }
+                            { path: file1, size: 6 },
+                            { path: file2, size: 5 }
                           ]));
 
   });
@@ -226,32 +226,32 @@ describe('Set both start and end', function() {
   describe('from 1st file to 3rd',
            macro(file1, file2, file3, { start: 2, end: 15 },
                  'llo\nworld!!\ndo', [
-                   { path: file1, size: 4 }
-                 , { path: file2, size: 8 }
-                 , { path: file3, size: 2 }
+                   { path: file1, size: 4 },
+                   { path: file2, size: 8 },
+                   { path: file3, size: 2 }
                  ]));
 
   describe('from 1st file to 3rd with stream in the', function() {
 
     describe('beginning', macro(fs.createReadStream(file1), file2, file3,
                           { start: 2, end: 15 }, 'llo\nworld!!\ndo', [
-                            { path: file1, size: 4 }
-                          , { path: file2, size: 8 }
-                          , { path: file3, size: 2 }
+                            { path: file1, size: 4 },
+                            { path: file2, size: 8 },
+                            { path: file3, size: 2 }
                           ]));
 
     describe('middle', macro(file1, fs.createReadStream(file2), file3,
                           { start: 2, end: 15 }, 'llo\nworld!!\ndo', [
-                            { path: file1, size: 4 }
-                          , { path: file2, size: 8 }
-                          , { path: file3, size: 2 }
+                            { path: file1, size: 4 },
+                            { path: file2, size: 8 },
+                            { path: file3, size: 2 }
                           ]));
 
     describe('end', macro(file1, file2, fs.createReadStream(file3),
                           { start: 2, end: 15 }, 'llo\nworld!!\ndo', [
-                            { path: file1, size: 4 }
-                          , { path: file2, size: 8 }
-                          , { path: file3, size: 2 }
+                            { path: file1, size: 4 },
+                            { path: file2, size: 8 },
+                            { path: file3, size: 2 }
                           ]));
 
   });
