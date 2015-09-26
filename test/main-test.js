@@ -17,8 +17,8 @@ describe('Concat 2 files', function() {
 
     kat.on('files', function(files) {
       assert.deepEqual(files, [
-        { path: file1, size: 6 }
-      , { path: file2, size: 8 }
+        { path: file1, size: 6 },
+        { path: file2, size: 8 }
       ]);
     });
 
@@ -46,8 +46,8 @@ describe('Concat 2 files', function() {
 
       kat.on('files', function(files) {
         assert.deepEqual(files, [
-          { path: file1, size: 6 }
-        , { path: file2, size: 8 }
+          { path: file1, size: 6 },
+          { path: file2, size: 8 }
         ]);
       });
 
@@ -134,8 +134,8 @@ describe('Concat empty file', function() {
 
       kat.on('files', function(files) {
         assert.deepEqual(files, [
-          { path: file1, size: 6 }
-        , { path: file2, size: 8 }
+          { path: file1, size: 6 },
+          { path: file2, size: 8 }
         ]);
       });
 
@@ -152,11 +152,11 @@ describe('Concat a file and files inside a directory', function() {
 
     kat.on('files', function(files) {
       assert.deepEqual(files, [
-        { path: file1, size: 6 }
-      , { path: path.join(dir1, 'a'), size: 4 }
-      , { path: path.join(dir1, 'b'), size: 4 }
-      , { path: path.join(dir1, 'c'), size: 4 }
-      , { path: file2, size: 8 }
+        { path: file1, size: 6 },
+        { path: path.join(dir1, 'a'), size: 4 },
+        { path: path.join(dir1, 'b'), size: 4 },
+        { path: path.join(dir1, 'c'), size: 4 },
+        { path: file2, size: 8 }
       ]);
     });
 
@@ -186,13 +186,13 @@ describe('Concat a file and files inside a directory', function() {
 
       kat.on('files', function(files) {
         assert.deepEqual(files, [
-          { path: file1, size: 6 }
-        , { path: path.join(dir2, 'a'), size: 4 }
-        , { path: path.join(dir2, 'b'), size: 4 }
-        , { path: path.join(dir2, 'c'), size: 4 }
-        , { path: path.join(dir2, 'subdir', 'foo.bar'), size: 7 }
-        , { path: path.join(dir2, 'subdir', 'hello.world'), size: 7 }
-        , { path: file2, size: 8 }
+          { path: file1, size: 6 },
+          { path: path.join(dir2, 'a'), size: 4 },
+          { path: path.join(dir2, 'b'), size: 4 },
+          { path: path.join(dir2, 'c'), size: 4 },
+          { path: path.join(dir2, 'subdir', 'foo.bar'), size: 7 },
+          { path: path.join(dir2, 'subdir', 'hello.world'), size: 7 },
+          { path: file2, size: 8 }
         ]);
       });
 

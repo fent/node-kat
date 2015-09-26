@@ -17,8 +17,7 @@
     "lib": "./lib"
   },
   "dependencies": {
-    "queue2": "~0.1.0",
-    "readable-stream": "~1.1.9"
+    "queue2": "~0.1.0"
   },
   "devDependencies": {
     "mocha": "x"
