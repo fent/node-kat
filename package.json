@@ -1,8 +1,13 @@
 {
   "name": "kat",
   "description": "File and stream concatenation the right way.",
-  "keywords": ["file", "read", "stream", "concat"],
-  "version": "0.3.0",
+  "keywords": [
+    "file",
+    "read",
+    "stream",
+    "concat"
+  ],
+  "version": "0.3.1",
   "repository": {
     "type": "git",
     "url": "git://github.com/fent/node-kat.git"
@@ -11,7 +16,6 @@
   "main": "./lib/index.js",
   "scripts": {
     "test": "mocha -R spec test/*-test.js"
-
   },
   "directories": {
     "lib": "./lib"
@@ -22,8 +26,10 @@
   "devDependencies": {
     "mocha": "x"
   },
-  "licenses": [ {
-    "type": "MIT",
-    "url" : "http://github.com/fent/node-kat/raw/master/LICENSE"
-  }]
+  "licenses": [
+    {
+      "type": "MIT",
+      "url": "http://github.com/fent/node-kat/raw/master/LICENSE"
+    }
+  ]
 }
