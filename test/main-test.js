@@ -267,7 +267,9 @@ describe('Concat a file and files inside a directory', function() {
   describe('Add an empty directory', function() {
     it('Should not inclue directory in list of files', function(done) {
       var kat = new Kat();
-      kat.add(file1, dir4, file2);
+      fs.mkdir(dir4, function() {
+        kat.add(file1, dir4, file2);
+      });
 
       kat.on('files', function(files) {
         assert.deepEqual(files, [
