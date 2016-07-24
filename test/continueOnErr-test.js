@@ -1,6 +1,7 @@
-var Kat = require('..');
+var Kat    = require('..');
 var assert = require('assert');
-var path = require('path');
+var fs     = require('fs');
+var path   = require('path');
 
 
 var file1 = path.join(__dirname, 'files', 'file1.txt');
@@ -18,13 +19,41 @@ describe('Try to concat a nonexistant file with continueOnErr', function() {
         data += chunk.toString();
       });
 
-      kat.on('error', function(err) {
-        assert.equal(err.code, 'ENOENT');
+      var err;
+      kat.on('error', function(e) {
+        err = e;
       });
 
       kat.on('end', function() {
+        console.log('end');
+        assert.ok(err);
+        assert.equal(err.code, 'ENOENT');
         assert.equal(data, 'hello\nworld!!\n');
         done();
+      });
+    });
+
+    describe('With a stream that emits an error', function() {
+      it('Correctly emits data in order', function(done) {
+        var stream = fs.createReadStream(badfile);
+        var kat = new Kat(stream, file2, { continueOnErr: true });
+
+        var data = '';
+        kat.on('data', function(chunk) {
+          data += chunk.toString();
+        });
+
+        var err;
+        kat.on('error', function(e) {
+          err = e;
+        });
+
+        kat.on('end', function() {
+          assert.ok(err);
+          assert.equal(err.code, 'ENOENT');
+          assert.equal(data, 'world!!\n');
+          done();
+        });
       });
     });
   });
