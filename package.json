@@ -15,7 +15,7 @@
   "author": "Roly Fentanes (https://github.com/fent)",
   "main": "./lib/index.js",
   "scripts": {
-    "test": "mocha -R spec test/*-test.js"
+    "test": "istanbul cover node_modules/.bin/_mocha test/*-test.js"
   },
   "directories": {
     "lib": "./lib"
@@ -24,7 +24,8 @@
     "queue2": "~0.1.0"
   },
   "devDependencies": {
-    "mocha": "x"
+    "istanbul": "*",
+    "mocha": "*"
   },
   "licenses": [
     {

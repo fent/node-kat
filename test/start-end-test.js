@@ -1,7 +1,8 @@
-var Kat    = require('..');
-var assert = require('assert');
-var fs     = require('fs');
-var path   = require('path');
+var Kat         = require('..');
+var PassThrough = require('stream').PassThrough;
+var assert      = require('assert');
+var fs          = require('fs');
+var path        = require('path');
 
 
 var file1 = path.join(__dirname, 'files', 'file1.txt');
@@ -57,7 +58,6 @@ describe('Set start', function() {
            ]));
 
   describe('in the 1st file with stream in the', function() {
-
     describe('beginning', macro(fs.createReadStream(file1), file2, file3,
                                 { start: 2 }, 'llo\nworld!!\ndog\n', [
                                   { path: file1, size: 4 },
@@ -149,10 +149,11 @@ describe('Set end', function() {
            ]));
 
   describe('in the 1st file with stream in the', function() {
-
-    describe('beginning', macro(fs.createReadStream(file1), file2, file3,
+    var stream = new PassThrough();
+    fs.createReadStream(file1).pipe(stream);
+    describe('beginning', macro(stream, file2, file3,
                                 { end: 3 }, 'hell', [
-                                  { path: file1, size: 4 }
+                                  { path: 0, size: 4 }
                                 ]));
 
     describe('middle', macro(file1, fs.createReadStream(file2), file3,

@@ -1,7 +1,8 @@
-var Kat    = require('..');
-var assert = require('assert');
-var fs     = require('fs');
-var path   = require('path');
+var Kat         = require('..');
+var PassThrough = require('stream').PassThrough;
+var assert      = require('assert');
+var fs          = require('fs');
+var path        = require('path');
 
 
 var file1 = path.join(__dirname, 'files', 'file1.txt');
@@ -9,6 +10,8 @@ var file2 = path.join(__dirname, 'files', 'file2.txt');
 var file3 = path.join(__dirname, 'files', 'empty.txt');
 var dir1  = path.join(__dirname, 'files', 'dir1');
 var dir2  = path.join(__dirname, 'files', 'dir2');
+var dir3  = path.join(__dirname, 'files', 'dir3');
+var dir4  = path.join(__dirname, 'files', 'dir4');
 
 
 describe('Concat 2 files', function() {
@@ -40,6 +43,18 @@ describe('Concat 2 files', function() {
     });
   });
 
+  describe('Use custom encoding', function() {
+    it('Data matches encoding', function(done) {
+      var kat = new Kat(file1, file2, { encoding: 'utf8' });
+
+      kat.on('data', function(data) {
+        assert.ok(!Buffer.isBuffer(data));
+        kat.destroy();
+        done();
+      });
+    });
+  });
+
   describe('passing in streams', function() {
     it('Emits correct filesize data', function(done) {
       var kat = new Kat(fs.createReadStream(file1), file2);
@@ -66,6 +81,24 @@ describe('Concat 2 files', function() {
       kat.on('end', function() {
         assert.equal(data, 'hello\nworld!!\n');
         done();
+      });
+    });
+
+    describe('That is not a file stream', function() {
+      it('Correctly concats', function(done) {
+        var stream = new PassThrough();
+        fs.createReadStream(file1).pipe(stream);
+        var kat = new Kat(stream, file2);
+        var data = '';
+
+        kat.on('data', function(chunk) {
+          data += chunk.toString();
+        });
+
+        kat.on('end', function() {
+          assert.equal(data, 'hello\nworld!!\n');
+          done();
+        });
       });
     });
   });
@@ -217,4 +250,34 @@ describe('Concat a file and files inside a directory', function() {
     });
   });
 
+  describe('Try reading a directory without permissions', function() {
+    it('Emits an error', function(done) {
+      fs.chmod(dir3, '000', function(err) {
+        if (err) { return done(err); }
+        var kat = new Kat(file1, dir3);
+        kat.on('error', function(err) {
+          assert.ok(err);
+          assert.equal(err.code, 'EACCES');
+          fs.chmod(dir3, '777', done);
+        });
+      });
+    });
+  });
+
+  describe('Add an empty directory', function() {
+    it('Should not inclue directory in list of files', function(done) {
+      var kat = new Kat();
+      kat.add(file1, dir4, file2);
+
+      kat.on('files', function(files) {
+        assert.deepEqual(files, [
+          { path: file1, size: 6 },
+          { path: file2, size: 8 }
+        ]);
+      });
+
+      kat.on('end', done);
+      kat.resume();
+    });
+  });
 });

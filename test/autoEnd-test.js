@@ -25,6 +25,5 @@ describe('Set autoEnd to off', function() {
       throw new Error('should not end');
     });
     kat.resume();
-
   });
 });

@@ -100,7 +100,6 @@ Creates a new instance of Kat. Passing in files to the constructor is a shortcut
 { flags: 'r'
 , encoding: null
 , mode: 438
-, bufferSize: 64 * 1024
 
 // can be used to select what part of the concatenated file will be read
 // even if that means skipping files entirely
@@ -124,9 +123,12 @@ Creates a new instance of Kat. Passing in files to the constructor is a shortcut
 ### Kat#add(file...)
 Adds argument list to the list of files that will be concatenated. `file` can be a string to a path of a file, a folder, or a readable stream. If it's a folder, all files in it will be recursively added alphabetically.
 
+### Kat#destroy()
+Stops the stream and destroys all underlying file stream.
+
 # Events
 
-### Event: 'fd'
+### Event: 'open'
 * `number` - File descriptor.
 * `string` - File path.
 
