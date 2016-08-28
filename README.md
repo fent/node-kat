@@ -2,7 +2,9 @@
 
 A simple module that concatenates files and binary streams with some extras.
 
-[![Build Status](https://secure.travis-ci.org/fent/node-kat.png)](http://travis-ci.org/fent/node-kat) [![Dependency Status](https://gemnasium.com/fent/node-kat.svg)](https://gemnasium.com/fent/node-kat)
+[![Build Status](https://secure.travis-ci.org/fent/node-kat.svg)](http://travis-ci.org/fent/node-kat)
+[![Dependency Status](https://gemnasium.com/fent/node-kat.svg)](https://gemnasium.com/fent/node-kat)
+[![codecov](https://codecov.io/gh/fent/node-kat/branch/master/graph/badge.svg)](https://codecov.io/gh/fent/node-kat)
 
 # Usage
 
