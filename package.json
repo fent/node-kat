@@ -27,10 +27,5 @@
     "istanbul": "*",
     "mocha": "*"
   },
-  "licenses": [
-    {
-      "type": "MIT",
-      "url": "http://github.com/fent/node-kat/raw/master/LICENSE"
-    }
-  ]
+  "license": "MIT"
 }
