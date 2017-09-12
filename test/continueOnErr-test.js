@@ -25,7 +25,6 @@ describe('Try to concat a nonexistant file with continueOnErr', function() {
       });
 
       kat.on('end', function() {
-        console.log('end');
         assert.ok(err);
         assert.equal(err.code, 'ENOENT');
         assert.equal(data, 'hello\nworld!!\n');
