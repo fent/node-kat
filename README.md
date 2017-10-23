@@ -9,8 +9,8 @@ A simple module that concatenates files and binary streams with some extras.
 # Usage
 
 ```js
-var Kat = require('kat');
-var readstream = new Kat();
+const Kat = require('kat');
+const readstream = new Kat();
 
 readstream.add('file1.txt');
 readstream.add('file2.txt');
@@ -26,28 +26,28 @@ You might be thinking this module is way too simple to even be a module. I was t
 There are several node modules where their API allow developers to pass in file data by passing in a file path to a method.
 
 ```js
-foo.read('myfile.json', function(err, result) {
-  // do something with result
+foo.read('myfile.json', (err, result) => {
+  // Do something with result.
 });
 ```
 
-These modules are doing it wrong. (With the exception of modules that are used in setup)
+These modules are doing it wrong. (With the exception of modules that are used during setup)
 
 In many cases, you will want to have the option to pass in a readable stream of the file. Why? Because with a stream, not only can you give it a local file stream, but it can also be a stream from a remote request. Or even a stream that parses or uncompresses another stream.
 
 ```js
-// local file
-var fs = require('fs');
+// Local file.
+const fs = require('fs');
 foo.read(fs.createReadStream('myfile.json'));
 
-// remote file
-// request conveniently returns a readable stream
-var request = require('request');
+// Remote file.
+// Request conveniently returns a readable stream.
+const request = require('request');
 foo.read(request('http://somewhere.net/over/the/rainbow.json'));
 
-// compressed file
-var fs = require('fs');
-var zlib = require('zlib');
+// Compressed file.
+const fs = require('fs');
+const zlib = require('zlib');
 var stream = fs.createReadStream('myfile.json').pipe(zlib.createDeflate());
 foo.read(stream);
 ```
@@ -55,9 +55,9 @@ foo.read(stream);
 The module could even be used in a server that allows file uploads without the server having to save the entire file to disc.
 
 ```js
-require('http').createServer(function(req, res) {
-  foo.read(req, function(err, result) {
-    // respond to res
+require('http').createServer((req, res) => {
+  foo.read(req, (err, result) => {
+    // Respond to res.
   });
 });
 ```
@@ -65,10 +65,10 @@ require('http').createServer(function(req, res) {
 But ideally, we want to make our module APIs as convenient as possible for other developers. It's really common for a module to receive streams that are local file read streams made with `fs.createReadStream`. Thus it would be convenient to allow its users to give the module a file path OR a readable stream.
 
 ```js
-// pass in a file path
+// Pass in a file path.
 foo.read('myfile.json');
 
-// pass in a stream
+// Pass in a stream.
 foo.read(fs.createReadStream('myfile.json'));
 ```
 
@@ -99,26 +99,26 @@ Creates a new instance of Kat. Passing in files to the constructor is a shortcut
 
 ```js
 // will be used whenever a file is opened
-{ flags: 'r'
-, encoding: null
-, mode: 438
+{ flags: 'r',
+  encoding: null,
+  mode: 438,
 
 // can be used to select what part of the concatenated file will be read
 // even if that means skipping files entirely
-, start: 0
-, end: Infinity
+  start: 0,
+  end: Infinity,
 
 // if true, will keep reading any additional streams if there is an error
 // if false, will stop and destroy all streams as soon as there is one error
-, continueOnErr: false
+  continueOnErr: false,
 
-, allowFiles: true
-, allowDirs: true
-, allowStreams: true
-, concurrency: 250
+  allowFiles: true,
+  allowDirs: true,
+  allowStreams: true,
+  concurrency: 250,
 
 // if true, will emit `end` when it finishes reading all streams
-, autoEnd: true
+  autoEnd: true,
 }
 ```
 
@@ -156,8 +156,9 @@ Emitted when all streams have been read.
 Emitted right before the `end` event.
 
 ```js
-[ { path: "/home/user/files/somefile.txt", size: 324 }
-, { path: 1, size: 4459 }
+[
+  { path: "/home/user/files/somefile.txt", size: 324 },
+  { path: 1, size: 4459 }
 ]
 ```
 
