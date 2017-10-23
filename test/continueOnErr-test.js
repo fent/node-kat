@@ -1,30 +1,30 @@
-var Kat    = require('..');
-var assert = require('assert');
-var fs     = require('fs');
-var path   = require('path');
+const Kat    = require('..');
+const assert = require('assert');
+const fs     = require('fs');
+const path   = require('path');
 
 
-var file1 = path.join(__dirname, 'files', 'file1.txt');
-var badfile = path.join(__dirname, 'files', 'idontexist!.what');
-var file2 = path.join(__dirname, 'files', 'file2.txt');
+const file1 = path.join(__dirname, 'files', 'file1.txt');
+const badfile = path.join(__dirname, 'files', 'idontexist!.what');
+const file2 = path.join(__dirname, 'files', 'file2.txt');
 
 
-describe('Try to concat a nonexistant file with continueOnErr', function() {
-  describe('on', function() {
-    it('Correctly emits data in order', function(done) {
+describe('Try to concat a nonexistant file with continueOnErr', () => {
+  describe('on', () => {
+    it('Correctly emits data in order', (done) => {
       var kat = new Kat(file1, badfile, file2, { continueOnErr: true });
 
       var data = '';
-      kat.on('data', function(chunk) {
+      kat.on('data', (chunk) => {
         data += chunk.toString();
       });
 
       var err;
-      kat.on('error', function(e) {
+      kat.on('error', (e) => {
         err = e;
       });
 
-      kat.on('end', function() {
+      kat.on('end', () => {
         assert.ok(err);
         assert.equal(err.code, 'ENOENT');
         assert.equal(data, 'hello\nworld!!\n');
@@ -32,22 +32,22 @@ describe('Try to concat a nonexistant file with continueOnErr', function() {
       });
     });
 
-    describe('With a stream that emits an error', function() {
-      it('Correctly emits data in order', function(done) {
+    describe('With a stream that emits an error', () => {
+      it('Correctly emits data in order', (done) => {
         var stream = fs.createReadStream(badfile);
         var kat = new Kat(stream, file2, { continueOnErr: true });
 
         var data = '';
-        kat.on('data', function(chunk) {
+        kat.on('data', (chunk) => {
           data += chunk.toString();
         });
 
         var err;
-        kat.on('error', function(e) {
+        kat.on('error', (e) => {
           err = e;
         });
 
-        kat.on('end', function() {
+        kat.on('end', () => {
           assert.ok(err);
           assert.equal(err.code, 'ENOENT');
           assert.equal(data, 'world!!\n');
@@ -57,16 +57,16 @@ describe('Try to concat a nonexistant file with continueOnErr', function() {
     });
   });
 
-  describe('off', function() {
-    it('Stops emitting on error', function(done) {
+  describe('off', () => {
+    it('Stops emitting on error', (done) => {
       var kat = new Kat(file1, badfile, file2);
 
-      kat.on('error', function() {
+      kat.on('error', () => {
         done();
       });
 
       // End should never be emitted.
-      kat.on('end', function() {
+      kat.on('end', () => {
         done(new Error('end should no be emitted!'));
       });
     });
