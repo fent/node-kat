@@ -27,8 +27,8 @@
     "queue2": "~0.1.0"
   },
   "devDependencies": {
-    "istanbul": "*",
-    "mocha": "*"
+    "istanbul": "^0.4.5",
+    "mocha": "^4.0.1"
   },
   "engines": {
     "node": ">=4"
