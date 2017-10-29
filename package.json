@@ -24,7 +24,7 @@
     "lib": "./lib"
   },
   "dependencies": {
-    "queue2": "~0.1.0"
+    "queue2": "~0.2.0"
   },
   "devDependencies": {
     "istanbul": "^0.4.5",
