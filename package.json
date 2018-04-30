@@ -28,7 +28,7 @@
   },
   "devDependencies": {
     "istanbul": "^0.4.5",
-    "mocha": "^5.0.0"
+    "mocha": "^5.1.1"
   },
   "engines": {
     "node": ">=4"
