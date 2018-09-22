@@ -12,7 +12,7 @@ const dir1  = path.join(__dirname, 'files', 'dir1');
 describe('Set allowFiles to off', () => {
   describe('including a file', () => {
     it('Throws an error', (done) => {
-      var kat = new Kat(dir1, file1, fs.createReadStream(file2), {
+      const kat = new Kat(dir1, file1, fs.createReadStream(file2), {
         allowFiles: false
       });
 
@@ -23,7 +23,7 @@ describe('Set allowFiles to off', () => {
       });
 
       kat.on('end', () => {
-        throw new Error('should not end');
+        throw Error('should not end');
       });
       kat.resume();
     });
@@ -31,7 +31,7 @@ describe('Set allowFiles to off', () => {
 
   describe('not including a file', () => {
     it('Does not throw an error', (done) => {
-      var kat = new Kat(dir1, fs.createReadStream(file2), {
+      const kat = new Kat(dir1, fs.createReadStream(file2), {
         allowFiles: false
       });
 
@@ -45,7 +45,7 @@ describe('Set allowFiles to off', () => {
 describe('Set allowDirs to off', () => {
   describe('including a directory', () => {
     it('Throws an error', (done) => {
-      var kat = new Kat(dir1, file1, fs.createReadStream(file2), {
+      const kat = new Kat(dir1, file1, fs.createReadStream(file2), {
         allowDirs: false
       });
 
@@ -56,7 +56,7 @@ describe('Set allowDirs to off', () => {
       });
 
       kat.on('end', () => {
-        throw new Error('should not end');
+        throw Error('should not end');
       });
       kat.resume();
     });
@@ -64,7 +64,7 @@ describe('Set allowDirs to off', () => {
 
   describe('not including a directory', () => {
     it('Does not throw an error', (done) => {
-      var kat = new Kat(file1, fs.createReadStream(file2), {
+      const kat = new Kat(file1, fs.createReadStream(file2), {
         allowDirs: false
       });
 
@@ -78,7 +78,7 @@ describe('Set allowDirs to off', () => {
 describe('Set allowStreams to off', () => {
   describe('including a stream', () => {
     it('Throws an error', (done) => {
-      var kat = new Kat(dir1, file1, fs.createReadStream(file2), {
+      const kat = new Kat(dir1, file1, fs.createReadStream(file2), {
         allowStreams: false
       });
 
@@ -89,7 +89,7 @@ describe('Set allowStreams to off', () => {
       });
 
       kat.on('end', () => {
-        throw new Error('should not end');
+        throw Error('should not end');
       });
       kat.resume();
     });
@@ -97,7 +97,7 @@ describe('Set allowStreams to off', () => {
 
   describe('not including a stream', () => {
     it('Does not throw an error', (done) => {
-      var kat = new Kat(dir1, file1, {
+      const kat = new Kat(dir1, file1, {
         allowStreams: false
       });
 

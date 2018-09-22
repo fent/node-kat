@@ -12,14 +12,14 @@ const file2 = path.join(__dirname, 'files', 'file2.txt');
 describe('Try to concat a nonexistant file with continueOnErr', () => {
   describe('on', () => {
     it('Correctly emits data in order', (done) => {
-      var kat = new Kat(file1, badfile, file2, { continueOnErr: true });
+      const kat = new Kat(file1, badfile, file2, { continueOnErr: true });
 
-      var data = '';
+      let data = '';
       kat.on('data', (chunk) => {
         data += chunk.toString();
       });
 
-      var err;
+      let err;
       kat.on('error', (e) => {
         err = e;
       });
@@ -34,15 +34,15 @@ describe('Try to concat a nonexistant file with continueOnErr', () => {
 
     describe('With a stream that emits an error', () => {
       it('Correctly emits data in order', (done) => {
-        var stream = fs.createReadStream(badfile);
-        var kat = new Kat(stream, file2, { continueOnErr: true });
+        const stream = fs.createReadStream(badfile);
+        const kat = new Kat(stream, file2, { continueOnErr: true });
 
-        var data = '';
+        let data = '';
         kat.on('data', (chunk) => {
           data += chunk.toString();
         });
 
-        var err;
+        let err;
         kat.on('error', (e) => {
           err = e;
         });
@@ -59,7 +59,7 @@ describe('Try to concat a nonexistant file with continueOnErr', () => {
 
   describe('off', () => {
     it('Stops emitting on error', (done) => {
-      var kat = new Kat(file1, badfile, file2);
+      const kat = new Kat(file1, badfile, file2);
 
       kat.on('error', () => {
         done();
@@ -67,7 +67,7 @@ describe('Try to concat a nonexistant file with continueOnErr', () => {
 
       // End should never be emitted.
       kat.on('end', () => {
-        done(new Error('end should no be emitted!'));
+        done(Error('end should no be emitted!'));
       });
     });
   });

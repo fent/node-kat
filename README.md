@@ -48,7 +48,7 @@ foo.read(request('http://somewhere.net/over/the/rainbow.json'));
 // Compressed file.
 const fs = require('fs');
 const zlib = require('zlib');
-var stream = fs.createReadStream('myfile.json').pipe(zlib.createDeflate());
+const stream = fs.createReadStream('myfile.json').pipe(zlib.createDeflate());
 foo.read(stream);
 ```
 
@@ -75,16 +75,16 @@ foo.read(fs.createReadStream('myfile.json'));
 But what if your module is the type that allows its users to add multiple files to it?
 
 ```js
-var bar = foo.createBar();
+const bar = foo.createBar();
 bar.add('file1.json');
 bar.add('file2.json');
 ```
 
-This is where node-kat shines. It easily allows you to convenielize (yes convenielize) your API by allowing users to input file paths, readable streams, and even paths to directories.
+This is where node-kat shines. It easily allows you to convenialize (yes convenialize) your API by allowing users to input file paths, readable streams, and even paths to directories.
 
 ```js
-var bar = foo.createBar();
-var request = require('request');
+const bar = foo.createBar();
+const request = require('request');
 bar.add('file1.json');
 bar.add(request('file2.json');
 bar.add('a/local/dir');

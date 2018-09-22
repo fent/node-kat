@@ -9,7 +9,7 @@ const file2 = path.join(__dirname, 'files', 'file2.txt');
 
 describe('Set autoEnd to off', () => {
   it('Does not end when done reading files', (done) => {
-    var kat = new Kat(file1, { autoEnd: false });
+    const kat = new Kat(file1, { autoEnd: false });
 
     kat.once('close', (path) => {
       assert.equal(path, file1);
@@ -22,7 +22,7 @@ describe('Set autoEnd to off', () => {
     });
 
     kat.on('end', () => {
-      throw new Error('should not end');
+      throw Error('should not end');
     });
     kat.resume();
   });

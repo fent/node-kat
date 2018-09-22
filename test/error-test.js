@@ -23,7 +23,7 @@ describe('Call with incorrect options', () => {
       new Kat({ concurrency: -4 });
     }, /concurrency must be a number and over 0/);
 
-    var kat = new Kat();
+    const kat = new Kat();
     kat.on('error', (err) => {
       assert.ok(err);
       assert.ok(/Invalid argument given/.test(err.message));
@@ -35,7 +35,7 @@ describe('Call with incorrect options', () => {
 
 describe('Add non-file and non-directory', () => {
   it('Emits an error', (done) => {
-    var kat = new Kat();
+    const kat = new Kat();
     kat.on('error', (err) => {
       assert.ok(err);
       assert.ok(
@@ -48,7 +48,7 @@ describe('Add non-file and non-directory', () => {
 
 describe('Add a stream that emits an error', () => {
   it('Kat also emits the error and stops', (done) => {
-    var kat = new Kat(fs.createReadStream('dontexist'));
+    const kat = new Kat(fs.createReadStream('dontexist'));
     kat.on('error', (err) => {
       assert.ok(err);
       assert.equal(err.code, 'ENOENT');
@@ -60,7 +60,7 @@ describe('Add a stream that emits an error', () => {
 
 describe('Try to add file after stream finishes', () => {
   it('Emits an error', (done) => {
-    var kat = new Kat(file1);
+    const kat = new Kat(file1);
     kat.on('end', () => {
       assert.throws(() => {
         kat.add('whatever');

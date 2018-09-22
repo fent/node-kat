@@ -11,22 +11,21 @@ const file3 = path.join(__dirname, 'files', 'dog.log');
 
 
 // Macro.
-function macro() {
-  var args = Array.prototype.slice.call(arguments);
-  var expectedFiles = args.pop();
-  var expectedData = args.pop();
-  var options = args.pop();
-  var files;
+const macro = (...args) => {
+  const expectedFiles = args.pop();
+  const expectedData = args.pop();
+  const options = args.pop();
+  let files;
 
   // Pause possible given streams.
   args.forEach((f) => { if (f.pause) f.pause(); });
 
   return () => {
     it('Data matches', (done) => {
-      var kat = new Kat(options);
-      kat.add.apply(kat, args);
+      const kat = new Kat(options);
+      kat.add(...args);
 
-      var data = '';
+      let data = '';
       kat.on('data', (chunk) => {
         data += chunk.toString();
       });
@@ -47,7 +46,7 @@ function macro() {
       assert.deepEqual(files, expectedFiles);
     });
   };
-}
+};
 
 
 describe('Set start', () => {
@@ -149,7 +148,7 @@ describe('Set end', () => {
     ]));
 
   describe('in the 1st file with stream in the', () => {
-    var stream = new PassThrough();
+    const stream = new PassThrough();
     fs.createReadStream(file1).pipe(stream);
     describe('beginning', macro(stream, file2, file3,
       { end: 3 }, 'hell', [

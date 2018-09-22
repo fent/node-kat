@@ -16,7 +16,7 @@ const dir4  = path.join(__dirname, 'files', 'dir4');
 
 describe('Concat 2 files', () => {
   it('Emits correct filesize data', (done) => {
-    var kat = new Kat(file1, file2);
+    const kat = new Kat(file1, file2);
 
     kat.on('files', (files) => {
       assert.deepEqual(files, [
@@ -30,8 +30,8 @@ describe('Concat 2 files', () => {
   });
 
   it('Correctly emits data in order', (done) => {
-    var kat = new Kat(file1, file2);
-    var data = '';
+    const kat = new Kat(file1, file2);
+    let data = '';
 
     kat.on('data', (chunk) => {
       data += chunk.toString();
@@ -45,7 +45,7 @@ describe('Concat 2 files', () => {
 
   describe('Use custom encoding', () => {
     it('Data matches encoding', (done) => {
-      var kat = new Kat(file1, file2, { encoding: 'utf8' });
+      const kat = new Kat(file1, file2, { encoding: 'utf8' });
 
       kat.on('data', (data) => {
         assert.ok(!Buffer.isBuffer(data));
@@ -57,7 +57,7 @@ describe('Concat 2 files', () => {
 
   describe('passing in streams', () => {
     it('Emits correct filesize data', (done) => {
-      var kat = new Kat(fs.createReadStream(file1), file2);
+      const kat = new Kat(fs.createReadStream(file1), file2);
 
       kat.on('files', (files) => {
         assert.deepEqual(files, [
@@ -71,8 +71,8 @@ describe('Concat 2 files', () => {
     });
 
     it('Correctly emits data in order', (done) => {
-      var kat = new Kat(fs.createReadStream(file1), file2);
-      var data = '';
+      const kat = new Kat(fs.createReadStream(file1), file2);
+      let data = '';
 
       kat.on('data', (chunk) => {
         data += chunk.toString();
@@ -86,10 +86,10 @@ describe('Concat 2 files', () => {
 
     describe('That is not a file stream', () => {
       it('Correctly concats', (done) => {
-        var stream = new PassThrough();
+        const stream = new PassThrough();
         fs.createReadStream(file1).pipe(stream);
-        var kat = new Kat(stream, file2);
-        var data = '';
+        const kat = new Kat(stream, file2);
+        let data = '';
 
         kat.on('data', (chunk) => {
           data += chunk.toString();
@@ -106,7 +106,7 @@ describe('Concat 2 files', () => {
 
 describe('Concat empty file', () => {
   it('Emits correct filesize data', (done) => {
-    var kat = new Kat(file3);
+    const kat = new Kat(file3);
 
     kat.on('files', (files) => {
       assert.deepEqual(files, [
@@ -119,7 +119,7 @@ describe('Concat empty file', () => {
 
   describe('preceeded by non-empty file', () => {
     it('Emits correct filesize data', (done) => {
-      var kat = new Kat(file1, file3);
+      const kat = new Kat(file1, file3);
 
       kat.on('files', (files) => {
         assert.deepEqual(files, [
@@ -134,7 +134,7 @@ describe('Concat empty file', () => {
 
   describe('followed by non-empty file', () => {
     it('Emits correct filesize data', (done) => {
-      var kat = new Kat(file3, file1);
+      const kat = new Kat(file3, file1);
 
       kat.on('files', (files) => {
         assert.deepEqual(files, [
@@ -149,7 +149,7 @@ describe('Concat empty file', () => {
 
   describe('preceed and followed by empty files', () => {
     it('Emits correct filesize data', (done) => {
-      var kat = new Kat(file3, file3, file3);
+      const kat = new Kat(file3, file3, file3);
 
       kat.on('files', (files) => {
         assert.deepEqual(files, [
@@ -163,7 +163,7 @@ describe('Concat empty file', () => {
 
   describe('preceed and followed by non empty files', () => {
     it('Emits correct filesize data', (done) => {
-      var kat = new Kat(file1, file3, file2);
+      const kat = new Kat(file1, file3, file2);
 
       kat.on('files', (files) => {
         assert.deepEqual(files, [
@@ -180,7 +180,7 @@ describe('Concat empty file', () => {
 
 describe('Concat a file and files inside a directory', () => {
   it('Emits correct filesize data', (done) => {
-    var kat = new Kat();
+    const kat = new Kat();
     kat.add(file1, dir1, file2);
 
     kat.on('files', (files) => {
@@ -198,9 +198,9 @@ describe('Concat a file and files inside a directory', () => {
   });
 
   it('Data correctly ordered', (done) => {
-    var kat = new Kat();
+    const kat = new Kat();
     kat.add(file1, dir1, file2);
-    var data = '';
+    let data = '';
 
     kat.on('data', (chunk) => {
       data += chunk.toString();
@@ -214,7 +214,7 @@ describe('Concat a file and files inside a directory', () => {
 
   describe('that includes a subdirectory', () => {
     it('Emits correct filesize data', (done) => {
-      var kat = new Kat();
+      const kat = new Kat();
       kat.add(file1, dir2, file2);
 
       kat.on('files', (files) => {
@@ -234,9 +234,9 @@ describe('Concat a file and files inside a directory', () => {
     });
 
     it('Data correctly ordered', (done) => {
-      var kat = new Kat();
+      const kat = new Kat();
       kat.add(file1, dir2, file2);
-      var data = '';
+      let data = '';
 
       kat.on('data', (chunk) => {
         data += chunk.toString();
@@ -253,8 +253,8 @@ describe('Concat a file and files inside a directory', () => {
   describe('Try reading a directory without permissions', () => {
     it('Emits an error', (done) => {
       fs.chmod(dir3, '000', (err) => {
-        if (err) { return done(err); }
-        var kat = new Kat(file1, dir3);
+        assert.ifError(err);
+        const kat = new Kat(file1, dir3);
         kat.on('error', (err) => {
           assert.ok(err);
           assert.equal(err.code, 'EACCES');
@@ -266,7 +266,7 @@ describe('Concat a file and files inside a directory', () => {
 
   describe('Add an empty directory', () => {
     it('Should not inclue directory in list of files', (done) => {
-      var kat = new Kat();
+      const kat = new Kat();
       fs.mkdir(dir4, () => {
         kat.add(file1, dir4, file2);
       });
