@@ -4,7 +4,7 @@ A simple module that concatenates files and binary streams with some extras.
 
 [![Build Status](https://secure.travis-ci.org/fent/node-kat.svg)](http://travis-ci.org/fent/node-kat)
 [![Dependency Status](https://david-dm.org/fent/node-kat.svg)](https://david-dm.org/fent/node-kat)
-[![codecov](https://codecov.io/gh/fent/node-kat/branch/master/graph/badge.svg)](https://codecov.io/gh/fent/node-kat)
+[![codecov](https://codecov.io/gh/fent/node-kat/branch/master/graph/badge.svg)](https://codecov.io/gh/fent/node-kat) [![Greenkeeper badge](https://badges.greenkeeper.io/fent/node-kat.svg)](https://greenkeeper.io/)
 
 # Usage
 
