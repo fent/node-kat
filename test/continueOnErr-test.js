@@ -1,13 +1,11 @@
-const Kat    = require('..');
-const assert = require('assert');
-const fs     = require('fs');
-const path   = require('path');
-
+const Kat = require('..');
+const assert = require('node:assert');
+const fs = require('node:fs');
+const path = require('node:path');
 
 const file1 = path.join(__dirname, 'files', 'file1.txt');
 const badfile = path.join(__dirname, 'files', 'idontexist!.what');
 const file2 = path.join(__dirname, 'files', 'file2.txt');
-
 
 describe('Try to concat a nonexistant file with continueOnErr', () => {
   describe('on', () => {

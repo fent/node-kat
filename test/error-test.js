@@ -1,7 +1,7 @@
-const Kat    = require('..');
-const assert = require('assert');
-const fs     = require('fs');
-const path   = require('path');
+const Kat = require('..');
+const assert = require('node:assert');
+const fs = require('node:fs');
+const path = require('node:path');
 
 const file1 = path.join(__dirname, 'files', 'file1.txt');
 
@@ -39,7 +39,8 @@ describe('Add non-file and non-directory', () => {
     kat.on('error', (err) => {
       assert.ok(err);
       assert.ok(
-        /Path given must be either a file or directory/.test(err.message));
+        /Path given must be either a file or directory/.test(err.message),
+      );
       done();
     });
     kat.add('/dev/tty');

@@ -1,18 +1,16 @@
-const Kat         = require('..');
-const PassThrough = require('stream').PassThrough;
-const assert      = require('assert');
-const fs          = require('fs');
-const path        = require('path');
-
+const Kat = require('..');
+const PassThrough = require('node:stream').PassThrough;
+const assert = require('node:assert');
+const fs = require('node:fs');
+const path = require('node:path');
 
 const file1 = path.join(__dirname, 'files', 'file1.txt');
 const file2 = path.join(__dirname, 'files', 'file2.txt');
 const file3 = path.join(__dirname, 'files', 'empty.txt');
-const dir1  = path.join(__dirname, 'files', 'dir1');
-const dir2  = path.join(__dirname, 'files', 'dir2');
-const dir3  = path.join(__dirname, 'files', 'dir3');
-const dir4  = path.join(__dirname, 'files', 'dir4');
-
+const dir1 = path.join(__dirname, 'files', 'dir1');
+const dir2 = path.join(__dirname, 'files', 'dir2');
+const dir3 = path.join(__dirname, 'files', 'dir3');
+const dir4 = path.join(__dirname, 'files', 'dir4');
 
 describe('Concat 2 files', () => {
   it('Emits correct filesize data', (done) => {
@@ -21,7 +19,7 @@ describe('Concat 2 files', () => {
     kat.on('files', (files) => {
       assert.deepEqual(files, [
         { path: file1, size: 6 },
-        { path: file2, size: 8 }
+        { path: file2, size: 8 },
       ]);
     });
 
@@ -62,7 +60,7 @@ describe('Concat 2 files', () => {
       kat.on('files', (files) => {
         assert.deepEqual(files, [
           { path: file1, size: 6 },
-          { path: file2, size: 8 }
+          { path: file2, size: 8 },
         ]);
       });
 
@@ -109,8 +107,7 @@ describe('Concat empty file', () => {
     const kat = new Kat(file3);
 
     kat.on('files', (files) => {
-      assert.deepEqual(files, [
-      ]);
+      assert.deepEqual(files, []);
     });
 
     kat.on('end', done);
@@ -122,9 +119,7 @@ describe('Concat empty file', () => {
       const kat = new Kat(file1, file3);
 
       kat.on('files', (files) => {
-        assert.deepEqual(files, [
-          { path: file1, size: 6 }
-        ]);
+        assert.deepEqual(files, [{ path: file1, size: 6 }]);
       });
 
       kat.on('end', done);
@@ -137,9 +132,7 @@ describe('Concat empty file', () => {
       const kat = new Kat(file3, file1);
 
       kat.on('files', (files) => {
-        assert.deepEqual(files, [
-          { path: file1, size: 6 }
-        ]);
+        assert.deepEqual(files, [{ path: file1, size: 6 }]);
       });
 
       kat.on('end', done);
@@ -152,8 +145,7 @@ describe('Concat empty file', () => {
       const kat = new Kat(file3, file3, file3);
 
       kat.on('files', (files) => {
-        assert.deepEqual(files, [
-        ]);
+        assert.deepEqual(files, []);
       });
 
       kat.on('end', done);
@@ -168,7 +160,7 @@ describe('Concat empty file', () => {
       kat.on('files', (files) => {
         assert.deepEqual(files, [
           { path: file1, size: 6 },
-          { path: file2, size: 8 }
+          { path: file2, size: 8 },
         ]);
       });
 
@@ -189,7 +181,7 @@ describe('Concat a file and files inside a directory', () => {
         { path: path.join(dir1, 'a'), size: 4 },
         { path: path.join(dir1, 'b'), size: 4 },
         { path: path.join(dir1, 'c'), size: 4 },
-        { path: file2, size: 8 }
+        { path: file2, size: 8 },
       ]);
     });
 
@@ -225,7 +217,7 @@ describe('Concat a file and files inside a directory', () => {
           { path: path.join(dir2, 'c'), size: 4 },
           { path: path.join(dir2, 'subdir', 'foo.bar'), size: 7 },
           { path: path.join(dir2, 'subdir', 'hello.world'), size: 7 },
-          { path: file2, size: 8 }
+          { path: file2, size: 8 },
         ]);
       });
 
@@ -243,8 +235,7 @@ describe('Concat a file and files inside a directory', () => {
       });
 
       kat.on('end', () => {
-        assert.equal(data,
-          'hello\n111\n222\n333\nlalala\nhahaha\nworld!!\n');
+        assert.equal(data, 'hello\n111\n222\n333\nlalala\nhahaha\nworld!!\n');
         done();
       });
     });
@@ -274,7 +265,7 @@ describe('Concat a file and files inside a directory', () => {
       kat.on('files', (files) => {
         assert.deepEqual(files, [
           { path: file1, size: 6 },
-          { path: file2, size: 8 }
+          { path: file2, size: 8 },
         ]);
       });
 

@@ -1,11 +1,9 @@
-const Kat    = require('..');
-const assert = require('assert');
-const path   = require('path');
-
+const Kat = require('..');
+const assert = require('node:assert');
+const path = require('node:path');
 
 const file1 = path.join(__dirname, 'files', 'file1.txt');
 const file2 = path.join(__dirname, 'files', 'file2.txt');
-
 
 describe('Set autoEnd to off', () => {
   it('Does not end when done reading files', (done) => {
