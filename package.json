@@ -18,7 +18,9 @@
     "lib"
   ],
   "scripts": {
-    "test": "istanbul cover node_modules/.bin/_mocha -- test/*-test.js"
+    "lint": "biome check .",
+    "lint:fix": "biome check --write .",
+    "test": "nyc --reporter=lcov --reporter=text-summary mocha test/*-test.js"
   },
   "directories": {
     "lib": "./lib"
@@ -27,8 +29,9 @@
     "queue2": "~0.2.1"
   },
   "devDependencies": {
-    "istanbul": "^0.4.5",
-    "mocha": "^6.0.0"
+    "@biomejs/biome": "^2.5.15",
+    "mocha": "^12.0.3",
+    "nyc": "^18.0.0"
   },
   "engines": {
     "node": ">=6"
