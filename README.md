@@ -2,8 +2,8 @@
 
 A simple module that concatenates files and binary streams with some extras.
 
-[![Build Status](https://secure.travis-ci.org/fent/node-kat.svg)](http://travis-ci.org/fent/node-kat)
-![Depfu](https://img.shields.io/depfu/fent/node-kat)
+[![npm](https://img.shields.io/npm/v/kat)](https://www.npmjs.com/package/kat)
+[![Node.js CI](https://github.com/fent/node-kat/actions/workflows/nodejs.yml/badge.svg)](https://github.com/fent/node-kat/actions/workflows/nodejs.yml)
 [![codecov](https://codecov.io/gh/fent/node-kat/branch/master/graph/badge.svg)](https://codecov.io/gh/fent/node-kat)
 
 # Usage
