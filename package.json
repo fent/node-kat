@@ -34,7 +34,7 @@
     "nyc": "^18.0.0"
   },
   "engines": {
-    "node": ">=6"
+    "node": ">=20"
   },
   "license": "MIT"
 }
