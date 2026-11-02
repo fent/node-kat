@@ -1,36 +1,41 @@
-const Kat = require('..');
-const PassThrough = require('node:stream').PassThrough;
-const assert = require('node:assert');
-const fs = require('node:fs');
-const path = require('node:path');
+import assert from 'node:assert';
+import fs from 'node:fs';
+import path from 'node:path';
+import { PassThrough, type Readable } from 'node:stream';
+import Kat, { type KatFile, type KatOptions } from '../src';
 
 const file1 = path.join(__dirname, 'files', 'file1.txt');
 const file2 = path.join(__dirname, 'files', 'file2.txt');
 const file3 = path.join(__dirname, 'files', 'dog.log');
 
+type MacroInput = string | fs.ReadStream | PassThrough;
+
 // Macro.
-const macro = (...args) => {
-  const expectedFiles = args.pop();
-  const expectedData = args.pop();
-  const options = args.pop();
-  let files;
+const macro = (...args: [...MacroInput[], KatOptions, string, KatFile[]]) => {
+  const expectedFiles = args[args.length - 1] as KatFile[];
+  const expectedData = args[args.length - 2] as string;
+  const options = args[args.length - 3] as KatOptions;
+  const inputs = args.slice(0, -3) as (string | Readable)[];
+  let files: KatFile[] | undefined;
 
   // Pause possible given streams.
-  args.forEach((f) => {
-    if (f.pause) f.pause();
+  inputs.forEach((f) => {
+    if (typeof (f as { pause?: () => void }).pause === 'function') {
+      (f as { pause: () => void }).pause();
+    }
   });
 
   return () => {
     it('Data matches', (done) => {
       const kat = new Kat(options);
-      kat.add(...args);
+      kat.add(...inputs);
 
       let data = '';
-      kat.on('data', (chunk) => {
+      kat.on('data', (chunk: Buffer | string) => {
         data += chunk.toString();
       });
 
-      kat.on('files', (f) => {
+      kat.on('files', (f: KatFile[]) => {
         files = f;
       });
 

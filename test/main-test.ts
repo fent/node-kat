@@ -1,8 +1,8 @@
-const Kat = require('..');
-const PassThrough = require('node:stream').PassThrough;
-const assert = require('node:assert');
-const fs = require('node:fs');
-const path = require('node:path');
+import assert from 'node:assert';
+import fs from 'node:fs';
+import path from 'node:path';
+import { PassThrough } from 'node:stream';
+import Kat, { type KatFile } from '../src';
 
 const file1 = path.join(__dirname, 'files', 'file1.txt');
 const file2 = path.join(__dirname, 'files', 'file2.txt');
@@ -16,7 +16,7 @@ describe('Concat 2 files', () => {
   it('Emits correct filesize data', (done) => {
     const kat = new Kat(file1, file2);
 
-    kat.on('files', (files) => {
+    kat.on('files', (files: KatFile[]) => {
       assert.deepEqual(files, [
         { path: file1, size: 6 },
         { path: file2, size: 8 },
@@ -31,7 +31,7 @@ describe('Concat 2 files', () => {
     const kat = new Kat(file1, file2);
     let data = '';
 
-    kat.on('data', (chunk) => {
+    kat.on('data', (chunk: Buffer | string) => {
       data += chunk.toString();
     });
 
@@ -45,7 +45,7 @@ describe('Concat 2 files', () => {
     it('Data matches encoding', (done) => {
       const kat = new Kat(file1, file2, { encoding: 'utf8' });
 
-      kat.on('data', (data) => {
+      kat.on('data', (data: Buffer | string) => {
         assert.ok(!Buffer.isBuffer(data));
         kat.destroy();
         done();
@@ -57,7 +57,7 @@ describe('Concat 2 files', () => {
     it('Emits correct filesize data', (done) => {
       const kat = new Kat(fs.createReadStream(file1), file2);
 
-      kat.on('files', (files) => {
+      kat.on('files', (files: KatFile[]) => {
         assert.deepEqual(files, [
           { path: file1, size: 6 },
           { path: file2, size: 8 },
@@ -72,7 +72,7 @@ describe('Concat 2 files', () => {
       const kat = new Kat(fs.createReadStream(file1), file2);
       let data = '';
 
-      kat.on('data', (chunk) => {
+      kat.on('data', (chunk: Buffer | string) => {
         data += chunk.toString();
       });
 
@@ -89,7 +89,7 @@ describe('Concat 2 files', () => {
         const kat = new Kat(stream, file2);
         let data = '';
 
-        kat.on('data', (chunk) => {
+        kat.on('data', (chunk: Buffer | string) => {
           data += chunk.toString();
         });
 
@@ -106,7 +106,7 @@ describe('Concat empty file', () => {
   it('Emits correct filesize data', (done) => {
     const kat = new Kat(file3);
 
-    kat.on('files', (files) => {
+    kat.on('files', (files: KatFile[]) => {
       assert.deepEqual(files, []);
     });
 
@@ -118,7 +118,7 @@ describe('Concat empty file', () => {
     it('Emits correct filesize data', (done) => {
       const kat = new Kat(file1, file3);
 
-      kat.on('files', (files) => {
+      kat.on('files', (files: KatFile[]) => {
         assert.deepEqual(files, [{ path: file1, size: 6 }]);
       });
 
@@ -131,7 +131,7 @@ describe('Concat empty file', () => {
     it('Emits correct filesize data', (done) => {
       const kat = new Kat(file3, file1);
 
-      kat.on('files', (files) => {
+      kat.on('files', (files: KatFile[]) => {
         assert.deepEqual(files, [{ path: file1, size: 6 }]);
       });
 
@@ -144,7 +144,7 @@ describe('Concat empty file', () => {
     it('Emits correct filesize data', (done) => {
       const kat = new Kat(file3, file3, file3);
 
-      kat.on('files', (files) => {
+      kat.on('files', (files: KatFile[]) => {
         assert.deepEqual(files, []);
       });
 
@@ -157,7 +157,7 @@ describe('Concat empty file', () => {
     it('Emits correct filesize data', (done) => {
       const kat = new Kat(file1, file3, file2);
 
-      kat.on('files', (files) => {
+      kat.on('files', (files: KatFile[]) => {
         assert.deepEqual(files, [
           { path: file1, size: 6 },
           { path: file2, size: 8 },
@@ -175,7 +175,7 @@ describe('Concat a file and files inside a directory', () => {
     const kat = new Kat();
     kat.add(file1, dir1, file2);
 
-    kat.on('files', (files) => {
+    kat.on('files', (files: KatFile[]) => {
       assert.deepEqual(files, [
         { path: file1, size: 6 },
         { path: path.join(dir1, 'a'), size: 4 },
@@ -194,7 +194,7 @@ describe('Concat a file and files inside a directory', () => {
     kat.add(file1, dir1, file2);
     let data = '';
 
-    kat.on('data', (chunk) => {
+    kat.on('data', (chunk: Buffer | string) => {
       data += chunk.toString();
     });
 
@@ -209,7 +209,7 @@ describe('Concat a file and files inside a directory', () => {
       const kat = new Kat();
       kat.add(file1, dir2, file2);
 
-      kat.on('files', (files) => {
+      kat.on('files', (files: KatFile[]) => {
         assert.deepEqual(files, [
           { path: file1, size: 6 },
           { path: path.join(dir2, 'a'), size: 4 },
@@ -230,7 +230,7 @@ describe('Concat a file and files inside a directory', () => {
       kat.add(file1, dir2, file2);
       let data = '';
 
-      kat.on('data', (chunk) => {
+      kat.on('data', (chunk: Buffer | string) => {
         data += chunk.toString();
       });
 
@@ -246,9 +246,9 @@ describe('Concat a file and files inside a directory', () => {
       fs.chmod(dir3, '000', (err) => {
         assert.ifError(err);
         const kat = new Kat(file1, dir3);
-        kat.on('error', (err) => {
-          assert.ok(err);
-          assert.equal(err.code, 'EACCES');
+        kat.on('error', (e: NodeJS.ErrnoException) => {
+          assert.ok(e);
+          assert.equal(e.code, 'EACCES');
           fs.chmod(dir3, '777', done);
         });
       });
@@ -262,7 +262,7 @@ describe('Concat a file and files inside a directory', () => {
         kat.add(file1, dir4, file2);
       });
 
-      kat.on('files', (files) => {
+      kat.on('files', (files: KatFile[]) => {
         assert.deepEqual(files, [
           { path: file1, size: 6 },
           { path: file2, size: 8 },
@@ -271,6 +271,13 @@ describe('Concat a file and files inside a directory', () => {
 
       kat.on('end', done);
       kat.resume();
+    });
+  });
+
+  describe('Module exports interop', () => {
+    it('exposes Kat on Kat.Kat and Kat.default', () => {
+      assert.strictEqual(Kat.Kat, Kat);
+      assert.strictEqual(Kat.default, Kat);
     });
   });
 });

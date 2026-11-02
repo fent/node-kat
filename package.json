@@ -13,25 +13,30 @@
     "url": "git://github.com/fent/node-kat.git"
   },
   "author": "fent <fentbox@gmail.com> (https://github.com/fent)",
-  "main": "./lib/index.js",
+  "main": "./dist/index.js",
   "files": [
-    "lib"
+    "dist"
   ],
   "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "prepare": "tsc -p tsconfig.build.json",
     "lint": "biome check .",
     "lint:fix": "biome check --write .",
-    "test": "nyc --reporter=lcov --reporter=text-summary mocha test/*-test.js"
-  },
-  "directories": {
-    "lib": "./lib"
+    "test": "nyc --extension .ts --reporter=lcov --reporter=text-summary npm run test:unit && npm run test:package",
+    "test:unit": "mocha --require ts-node/register --ignore test/export-test.ts test/*-test.ts",
+    "test:package": "mocha --require ts-node/register test/export-test.ts"
   },
   "dependencies": {
     "queue2": "~0.2.1"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.5.15",
+    "@types/mocha": "^10.0.10",
+    "@types/node": "^22.20.5",
     "mocha": "^12.0.3",
-    "nyc": "^18.0.0"
+    "nyc": "^18.0.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.3"
   },
   "engines": {
     "node": ">=20"

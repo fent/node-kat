@@ -1,42 +1,42 @@
-const Kat = require('..');
-const assert = require('node:assert');
-const fs = require('node:fs');
-const path = require('node:path');
+import assert from 'node:assert';
+import fs from 'node:fs';
+import path from 'node:path';
+import Kat from '../src';
 
 const file1 = path.join(__dirname, 'files', 'file1.txt');
 
 describe('Call with incorrect options', () => {
   it('Throws type error', (done) => {
     assert.throws(() => {
-      new Kat({ start: 'nope' });
+      new Kat({ start: 'nope' as unknown as number });
     }, /start must be a number/);
     assert.throws(() => {
-      new Kat({ end: 'nope' });
+      new Kat({ end: 'nope' as unknown as number });
     }, /end must be a number/);
     assert.throws(() => {
       new Kat({ start: 2, end: 1 });
     }, /start and end must be start <= end/);
     assert.throws(() => {
-      new Kat({ concurrency: {} });
+      new Kat({ concurrency: {} as unknown as number });
     }, /concurrency must be a number and over 0/);
     assert.throws(() => {
       new Kat({ concurrency: -4 });
     }, /concurrency must be a number and over 0/);
 
     const kat = new Kat();
-    kat.on('error', (err) => {
+    kat.on('error', (err: Error) => {
       assert.ok(err);
       assert.ok(/Invalid argument given/.test(err.message));
       done();
     });
-    kat.add(3);
+    kat.add(3 as unknown as string);
   });
 });
 
 describe('Add non-file and non-directory', () => {
   it('Emits an error', (done) => {
     const kat = new Kat();
-    kat.on('error', (err) => {
+    kat.on('error', (err: Error) => {
       assert.ok(err);
       assert.ok(
         /Path given must be either a file or directory/.test(err.message),
@@ -50,7 +50,7 @@ describe('Add non-file and non-directory', () => {
 describe('Add a stream that emits an error', () => {
   it('Kat also emits the error and stops', (done) => {
     const kat = new Kat(fs.createReadStream('dontexist'));
-    kat.on('error', (err) => {
+    kat.on('error', (err: NodeJS.ErrnoException) => {
       assert.ok(err);
       assert.equal(err.code, 'ENOENT');
       done();

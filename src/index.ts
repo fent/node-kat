@@ -1,32 +1,52 @@
-const Readable = require('node:stream').Readable;
-const fs = require('node:fs');
-const path = require('node:path');
-const Queue2 = require('queue2');
+/// <reference path="./types/queue2.d.ts" />
+import fs from 'node:fs';
+import path from 'node:path';
+import { Readable } from 'node:stream';
+import Queue2 from 'queue2';
+
+type KatOptions = Kat.KatOptions;
+type KatFile = Kat.KatFile;
+type StreamData = Kat.StreamData;
 
 /**
  * Returns true if obj is a readable stream.
- *
- * @param {Object} obj
  */
-const isReadableStream = (obj) => {
-  return (
-    typeof obj === 'object' &&
-    typeof obj.pipe === 'function' &&
-    typeof obj.readable === 'boolean' &&
-    obj.readable
+const isReadableStream = (obj: unknown): obj is Readable => {
+  const stream = obj as Partial<Readable> | null;
+  return Boolean(
+    stream &&
+      typeof stream === 'object' &&
+      typeof stream.pipe === 'function' &&
+      typeof stream.readable === 'boolean' &&
+      stream.readable,
   );
 };
 
-module.exports = class Kat extends Readable {
+class Kat extends Readable {
+  static Kat = Kat;
+  static default = Kat;
+
+  public override readable = true;
+  public options: Required<KatOptions>;
+  public bytesRead: number;
+  public pos: number;
+  private _sized: number;
+  private _openQueue: Queue2;
+  private _queue: StreamData[];
+  private _files: KatFile[];
+  private _totalFiles: number;
+  private _skip?: boolean;
+  private _uncertain?: boolean;
+  private _ended?: boolean;
+  private _current?: StreamData;
+  private _waiting?: number;
+
   /**
-   * @constructor
-   * @extends {Readable}
-   * @param {string|Readable|Stream} ...file List of files to add on init.
-   * @param {Object} options
+   * @param files List of files to add on init.
    */
-  constructor(...files) {
+  constructor(...files: (string | Readable | KatOptions)[]) {
     // Default options.
-    const options = {
+    const options: Required<KatOptions> = {
       start: 0,
       end: Infinity,
       concurrency: 250,
@@ -52,95 +72,67 @@ module.exports = class Kat extends Readable {
       ) {
         Object.assign(options, last);
         if (typeof options.start !== 'number') {
-          throw Error('start must be a number');
+          throw new Error('start must be a number');
         }
         if (typeof options.end !== 'number') {
-          throw Error('end must be a number');
+          throw new Error('end must be a number');
         }
         if (options.start > options.end) {
-          throw Error('start and end must be start <= end');
+          throw new Error('start and end must be start <= end');
         }
         if (
           typeof options.concurrency !== 'number' ||
           options.concurrency <= 0
         ) {
-          throw Error('concurrency must be a number and over 0');
+          throw new Error('concurrency must be a number and over 0');
         }
       } else {
         files.push(last);
       }
     }
 
-    super(options);
+    super({
+      ...options,
+      encoding: options.encoding ?? undefined,
+    });
     this.options = options;
     this.bytesRead = 0;
     this.pos = 0;
     this._sized = 0;
 
     // A queue for opening and reading a file's stats.
-    const self = this;
+    const kat = this;
     this._openQueue = new Queue2(
-      function worker1(file, callback) {
-        if (!self.readable) {
-          return callback();
-        }
-
-        if (typeof file === 'string') {
-          fs.stat(file, (err, stat) => {
-            if (err) {
-              return callback(err);
-            }
-
-            if (stat.isFile()) {
-              if (!this.injected && !self.options.allowFiles) {
-                return callback(Error('Cannot add files'));
-              }
-
-              callback(null, true, file, stat.size);
-            } else if (stat.isDirectory()) {
-              if (!self.options.allowDirs) {
-                return callback(Error('Cannot add directories'));
-              }
-
-              fs.readdir(file, (err, files) => {
-                if (err) {
-                  return callback(err);
-                }
-                if (!files.length) {
-                  return callback();
-                }
-
-                files = files.sort().map((f) => path.join(file, f));
-                this.inject(files);
-              });
-            } else {
-              callback(Error('Path given must be either a file or directory'));
-            }
-          });
-        } else if (isReadableStream(file)) {
-          process.nextTick(() => {
-            if (!self.options.allowStreams) {
-              return callback(Error('Cannot add streams'));
-            }
-            callback(null, false, file);
-          });
-        } else {
-          callback(Error(`Invalid argument given: ${file}`));
-        }
+      function worker1(
+        this: { injected: boolean; inject: (list: string[]) => void },
+        file: string | Readable,
+        callback: (
+          err?: Error | null,
+          isFile?: boolean,
+          resFile?: string | Readable,
+          size?: number,
+        ) => void,
+      ) {
+        kat._openWorker(this, file, callback);
       },
-      (isFile, file, size, callback) => {
+      (
+        isFile: boolean,
+        file: string | Readable,
+        size: number,
+        callback: () => void,
+      ) => {
         if (!file) {
           callback();
         } else if (isFile) {
-          this._addFile(file, size, callback);
+          this._addFile(file as string, size, callback);
         } else {
-          this._addStream(file, false, callback);
+          this._addStream(file as Readable, false, callback);
         }
       },
       this.options.concurrency,
     );
 
-    this._openQueue.on('error', (err) => {
+    this._openQueue.on('error', (err: Error) => {
       if (!this.options.continueOnErr) {
         this._cleanup();
       }
@@ -161,18 +153,80 @@ module.exports = class Kat extends Readable {
 
     // Call add with possible given files to read.
     if (files.length > 0) {
-      this.add(...files);
+      this.add(...(files as (string | Readable)[]));
+    }
+  }
+
+  /**
+   * Worker function for opening and statting a file/stream.
+   *
+   * @param context Queue worker context with inject method.
+   */
+  private _openWorker(
+    context: { injected: boolean; inject: (list: string[]) => void },
+    file: string | Readable,
+    callback: (
+      err?: Error | null,
+      isFile?: boolean,
+      resFile?: string | Readable,
+      size?: number,
+    ) => void,
+  ): void {
+    if (!this.readable) {
+      callback();
+      return;
+    }
+
+    if (typeof file === 'string') {
+      fs.stat(file, (err, stat) => {
+        if (err) {
+          return callback(err);
+        }
+
+        if (stat.isFile()) {
+          if (!context.injected && !this.options.allowFiles) {
+            return callback(new Error('Cannot add files'));
+          }
+
+          callback(null, true, file, stat.size);
+        } else if (stat.isDirectory()) {
+          if (!this.options.allowDirs) {
+            return callback(new Error('Cannot add directories'));
+          }
+
+          fs.readdir(file, (readdirErr, dirFiles) => {
+            if (readdirErr) {
+              return callback(readdirErr);
+            }
+            if (!dirFiles.length) {
+              return callback();
+            }
+
+            const sorted = dirFiles.sort().map((f) => path.join(file, f));
+            context.inject(sorted);
+          });
+        } else {
+          callback(new Error('Path given must be either a file or directory'));
+        }
+      });
+    } else if (isReadableStream(file)) {
+      process.nextTick(() => {
+        if (!this.options.allowStreams) {
+          return callback(new Error('Cannot add streams'));
+        }
+        callback(null, false, file);
+      });
+    } else {
+      callback(new Error(`Invalid argument given: ${file}`));
     }
   }
 
   /**
    * Adds a file, folder, or readable stream.
-   *
-   * @param {string|Readable|Stream} ...file
    */
-  add(...args) {
+  add(...args: (string | Readable)[]): void {
     if (!this.readable) {
-      throw Error('Cannot add any more files');
+      throw new Error('Cannot add any more files');
     }
     for (const file of args) {
       this._openQueue.push(file);
@@ -180,18 +234,15 @@ module.exports = class Kat extends Readable {
   }
 
   /**
-   * Addds a file from a given path.
-   *
-   * @param {string} file
-   * @param {number} size
-   * @param {Function(!Error)} callback
+   * Adds a file from a given path.
    */
-  _addFile(file, size, callback) {
+  private _addFile(file: string, size: number, callback: () => void): void {
     if (this._skip) {
-      return callback();
+      callback();
+      return;
     }
-    let start = 0,
-      end = Infinity;
+    let start = 0;
+    let end = Infinity;
 
     // Calculate start and end positions for this file.
     // Uncertain means that a stream was added before this file
@@ -216,8 +267,9 @@ module.exports = class Kat extends Readable {
       this._sized = newSize;
 
       // If no data will be read from this file, skip it.
-      if (start >= size || (end && start >= end)) {
-        return callback();
+      if (start >= size || (end !== Infinity && start >= end)) {
+        callback();
+        return;
       }
     }
 
@@ -225,7 +277,7 @@ module.exports = class Kat extends Readable {
       fs.createReadStream(file, {
         flags: this.options.flags || 'r',
         mode: this.options.mode || 438,
-        encoding: this.options.encoding,
+        encoding: this.options.encoding ?? undefined,
         start,
         end,
       }),
@@ -235,25 +287,28 @@ module.exports = class Kat extends Readable {
   }
 
   /**
-   * Addds a readable stream.
+   * Adds a readable stream.
    *
-   * @param {Readable} stream
-   * @param {boolean} sized Wether or not this stream's size is known.
-   * @param {Function(!Error)} callback
+   * @param sized Whether or not this stream's size is known.
    */
-  _addStream(stream, sized, callback) {
+  private _addStream(
+    stream: Readable | fs.ReadStream,
+    sized: boolean,
+    callback: () => void,
+  ): void {
     // Take note if the size of this stream is not known.
     if (!sized) {
       this._uncertain = true;
     }
 
-    const filepath = stream.path || this._totalFiles++;
-
-    // Wether this stream is a file or not. Not set by openQueue because
+    // Whether this stream is a file or not. Not set by openQueue because
     // of the possibility of directly adding a `fs.ReadStream`.
     const isFile = stream instanceof fs.ReadStream;
+    const filepath: string | number = isFile
+      ? String(stream.path)
+      : this._totalFiles++;
 
-    const data = {
+    const data: StreamData = {
       // Keep track of how many bytes are read from this stream.
       bytesRead: 0,
 
@@ -270,7 +325,7 @@ module.exports = class Kat extends Readable {
     // Otherwise, treat this stream as if it ended
     // and continue to the next one.
     let hasErr = false;
-    const onerr = (err) => {
+    const onerr = (err: Error) => {
       hasErr = true;
       if (!this.options.continueOnErr) {
         this._cleanup();
@@ -282,7 +337,7 @@ module.exports = class Kat extends Readable {
     stream.on('error', onerr);
 
     // Proxy `fd` and `close` events to this instance.
-    const onopen = (fd) => {
+    const onopen = (fd: number) => {
       this.emit('open', fd, data.path);
     };
 
@@ -357,41 +412,33 @@ module.exports = class Kat extends Readable {
 
   /**
    * Add a stream and make it the currently active one.
-   *
-   * @param {Object} data
-   * @param {number} data.bytesRead
-   * @param {string} data.path
-   * @param {boolean} data.readable
-   * @param {Readable} data.stream
-   * @param {Function} data.cleanup
    */
-  _addCurrentStream(data) {
+  private _addCurrentStream(data: StreamData): void {
     this.emit('start', data.path);
     this._current = data;
 
     // Start reading from the stream right away.
     const size = this._waiting;
     delete this._waiting;
-    this._readStream(size);
+    this._readStream(data, size);
   }
 
   /**
    * Read method needed by the Readable class.
-   *
-   * @param {number} size
    */
-  _read(size) {
+  override _read(size?: number): void {
     if (this._current) {
-      if (this._current.readable) {
+      const current = this._current;
+      if (current.readable) {
         // If the current stream has already fired the `readable` event,
         // read from it right away.
-        this._readStream(size);
+        this._readStream(current, size);
       } else {
         // If not, wait until it does.
-        this._current.onreadable = () => {
-          this._readStream(size);
+        current.onreadable = () => {
+          this._readStream(current, size);
         };
-        this._current.stream.once('readable', this._current.onreadable);
+        current.stream.once('readable', current.onreadable);
       }
     } else {
       // If no stream has been added yet, note that `Kat#_read()` has
@@ -403,21 +450,22 @@ module.exports = class Kat extends Readable {
   /**
    * Read from the current stream. This is called when the `readable` event
    * has been fired on the current active stream.
-   *
-   * @param {number} size
    */
-  _readStream(size) {
+  private _readStream(current: StreamData, size?: number): void {
     const oldPos = this.pos;
 
     // Check if reading the `size` amount of data would go over `end`.
-    const newPos = this.pos + size;
-    if (size && this.options.end < newPos) {
-      // `end` is include, so the `- 1` is needed.
-      size -= newPos - this.options.end - 1;
+    let readSize = size;
+    if (readSize !== undefined) {
+      const newPos = this.pos + readSize;
+      if (readSize && this.options.end < newPos) {
+        // `end` is inclusive, so the `- 1` is needed.
+        readSize -= newPos - this.options.end - 1;
+      }
     }
 
-    this._current.readable = false;
-    let data = this._current.stream.read(size);
+    current.readable = false;
+    let data = current.stream.read(readSize);
 
     if (data) {
       // Add data length to total bytes read.
@@ -431,7 +479,7 @@ module.exports = class Kat extends Readable {
         if (this.options.start > oldPos) {
           // Skip this data read if `start` is in a later one.
           if (this.options.start > this.pos) {
-            this._waiting = size;
+            this._waiting = readSize;
             this.push('');
             return;
           }
@@ -448,48 +496,48 @@ module.exports = class Kat extends Readable {
       }
 
       // Emit data to Kat instance.
-      this._current.bytesRead += data.length;
+      current.bytesRead += data.length;
       this.push(data);
 
       // Take note if less data was retrieved than requested.
-      if (size && data.length < size) {
-        this._waiting = size - data.length;
+      if (readSize && data.length < readSize) {
+        this._waiting = readSize - data.length;
       }
 
       // End stream if end will be reached on this `data` event reached.
       if (this.options.end < this.pos) {
         this._ended = true;
 
-        if (typeof this._current.stream.close === 'function') {
-          // If this is a file stream, close the file descripter.
-          this._current.stream.close();
+        if (current.stream instanceof fs.ReadStream) {
+          // If this is a file stream, close the file descriptor.
+          current.stream.close();
         }
 
         // Call its `onend()` method right away
         // so it is not read any further.
-        this._current.onend();
+        current.onend?.();
       }
     } else {
-      this._current.onreadable = () => {
+      current.onreadable = () => {
         process.nextTick(() => {
           this._read(size);
         });
       };
-      this._current.stream.once('readable', this._current.onreadable);
+      current.stream.once('readable', current.onreadable);
     }
   }
 
   /**
    * Cleans up all streams including the ones in queue.
    */
-  _cleanup() {
+  private _cleanup(): void {
     this.readable = false;
     delete this._current;
     delete this._waiting;
     this._openQueue.die();
 
     this._queue.forEach((data) => {
-      data.cleanup();
+      data.cleanup?.();
     });
     this._queue = [];
   }
@@ -497,7 +545,7 @@ module.exports = class Kat extends Readable {
   /**
    * End stream.
    */
-  _end() {
+  private _end(): void {
     if (!this.readable) {
       return;
     }
@@ -509,7 +557,46 @@ module.exports = class Kat extends Readable {
   /**
    * Destroys the stream and any remaining opened streams.
    */
-  destroy() {
+  override destroy(): this {
     this._end();
+    return this;
   }
-};
+}
+
+namespace Kat {
+  export interface KatOptions {
+    start?: number;
+    end?: number;
+    concurrency?: number;
+    allowFiles?: boolean;
+    allowDirs?: boolean;
+    allowStreams?: boolean;
+    continueOnErr?: boolean;
+    autoEnd?: boolean;
+    flags?: string | null;
+    encoding?: BufferEncoding | null;
+    mode?: number | null;
+  }
+
+  export interface KatFile {
+    path: string | number;
+    size: number;
+  }
+
+  export interface StreamData {
+    bytesRead: number;
+    path: string | number;
+    stream: Readable | fs.ReadStream;
+    readable: boolean;
+    onreadable?: () => void;
+    onend?: () => void;
+    cleanup?: () => void;
+  }
+}
+
+// Statically recognizable exports for Node.js cjs-module-lexer (ESM named import support)
+module.exports = Kat;
+module.exports.default = Kat;
+module.exports.Kat = Kat;
+
+export = Kat;

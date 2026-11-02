@@ -1,11 +1,18 @@
-const Kat = require('..');
-const assert = require('node:assert');
-const fs = require('node:fs');
-const path = require('node:path');
+import assert from 'node:assert';
+import fs from 'node:fs';
+import path from 'node:path';
+import Kat from '../src';
 
 const file1 = path.join(__dirname, 'files', 'file1.txt');
 const file2 = path.join(__dirname, 'files', 'file2.txt');
 const dir1 = path.join(__dirname, 'files', 'dir1');
+
+const assertDoesNotEnd = (kat: Kat): void => {
+  kat.on('end', () => {
+    throw new Error('should not end');
+  });
+  kat.resume();
+};
 
 describe('Set allowFiles to off', () => {
   describe('including a file', () => {
@@ -14,16 +21,13 @@ describe('Set allowFiles to off', () => {
         allowFiles: false,
       });
 
-      kat.on('error', (err) => {
+      kat.on('error', (err: Error) => {
         assert.ok(err);
         assert.equal(err.message, 'Cannot add files');
         done();
       });
 
-      kat.on('end', () => {
-        throw Error('should not end');
-      });
-      kat.resume();
+      assertDoesNotEnd(kat);
     });
   });
 
@@ -46,16 +50,13 @@ describe('Set allowDirs to off', () => {
         allowDirs: false,
       });
 
-      kat.on('error', (err) => {
+      kat.on('error', (err: Error) => {
         assert.ok(err);
         assert.equal(err.message, 'Cannot add directories');
         done();
       });
 
-      kat.on('end', () => {
-        throw Error('should not end');
-      });
-      kat.resume();
+      assertDoesNotEnd(kat);
     });
   });
 
@@ -78,16 +79,13 @@ describe('Set allowStreams to off', () => {
         allowStreams: false,
       });
 
-      kat.on('error', (err) => {
+      kat.on('error', (err: Error) => {
         assert.ok(err);
         assert.equal(err.message, 'Cannot add streams');
         done();
       });
 
-      kat.on('end', () => {
-        throw Error('should not end');
-      });
-      kat.resume();
+      assertDoesNotEnd(kat);
     });
   });
 

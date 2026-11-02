@@ -1,7 +1,7 @@
-const Kat = require('..');
-const assert = require('node:assert');
-const fs = require('node:fs');
-const path = require('node:path');
+import assert from 'node:assert';
+import fs from 'node:fs';
+import path from 'node:path';
+import Kat from '../src';
 
 const file1 = path.join(__dirname, 'files', 'file1.txt');
 const badfile = path.join(__dirname, 'files', 'idontexist!.what');
@@ -13,12 +13,12 @@ describe('Try to concat a nonexistant file with continueOnErr', () => {
       const kat = new Kat(file1, badfile, file2, { continueOnErr: true });
 
       let data = '';
-      kat.on('data', (chunk) => {
+      kat.on('data', (chunk: Buffer | string) => {
         data += chunk.toString();
       });
 
-      let err;
-      kat.on('error', (e) => {
+      let err: NodeJS.ErrnoException | undefined;
+      kat.on('error', (e: NodeJS.ErrnoException) => {
         err = e;
       });
 
@@ -36,12 +36,12 @@ describe('Try to concat a nonexistant file with continueOnErr', () => {
         const kat = new Kat(stream, file2, { continueOnErr: true });
 
         let data = '';
-        kat.on('data', (chunk) => {
+        kat.on('data', (chunk: Buffer | string) => {
           data += chunk.toString();
         });
 
-        let err;
-        kat.on('error', (e) => {
+        let err: NodeJS.ErrnoException | undefined;
+        kat.on('error', (e: NodeJS.ErrnoException) => {
           err = e;
         });
 
@@ -65,7 +65,7 @@ describe('Try to concat a nonexistant file with continueOnErr', () => {
 
       // End should never be emitted.
       kat.on('end', () => {
-        done(Error('end should no be emitted!'));
+        done(new Error('end should no be emitted!'));
       });
     });
   });
