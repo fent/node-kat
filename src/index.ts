@@ -1,5 +1,6 @@
 /// <reference path="./types/queue2.d.ts" />
 import fs from 'node:fs';
+import { IncomingMessage } from 'node:http';
 import path from 'node:path';
 import { Readable } from 'node:stream';
 import Queue2 from 'queue2';
@@ -21,6 +22,45 @@ const isReadableStream = (obj: unknown): obj is Readable => {
       stream.readable,
   );
 };
+
+const inferStreamSize = (stream: Readable): Promise<number | undefined> => {
+  if (stream instanceof fs.ReadStream) {
+    if (stream.bytesRead > 0 || !stream.path) return Promise.resolve(undefined);
+
+    return new Promise((resolve) => {
+      fs.stat(stream.path, (err, stat) => {
+        if (err || !stat.isFile()) {
+          resolve(undefined);
+          return;
+        }
+
+        const range = stream as fs.ReadStream & {
+          start?: number;
+          end?: number;
+        };
+        const start = typeof range.start === 'number' ? range.start : 0;
+        const end = Number.isFinite(range.end)
+          ? (range.end as number)
+          : stat.size - 1;
+        resolve(Math.max(0, Math.min(end, stat.size - 1) - start + 1));
+      });
+    });
+  }
+
+  if (stream instanceof IncomingMessage) {
+    const header = stream.headers['content-length'];
+    if (typeof header === 'string') {
+      const length = Number.parseInt(header, 10);
+      if (Number.isInteger(length) && length >= 0)
+        return Promise.resolve(length);
+    }
+  }
+
+  return Promise.resolve(undefined);
+};
+
+const sliceData = (data: Buffer | string, start?: number, end?: number) =>
+  typeof data === 'string' ? data.slice(start, end) : data.subarray(start, end);
 
 class Kat extends Readable {
   static Kat = Kat;
@@ -126,7 +166,7 @@ class Kat extends Readable {
         } else if (isFile) {
           this._addFile(file as string, size, callback);
         } else {
-          this._addStream(file as Readable, false, callback);
+          this._addStream(file as Readable, size, callback);
         }
       },
       this.options.concurrency,
@@ -214,7 +254,21 @@ class Kat extends Readable {
         if (!this.options.allowStreams) {
           return callback(new Error('Cannot add streams'));
         }
-        callback(null, false, file);
+
+        let settled = false;
+        const onEarlyError = (err: Error) => {
+          settled = true;
+          file.on('error', () => undefined);
+          callback(err);
+        };
+        file.once('error', onEarlyError);
+
+        inferStreamSize(file).then((size) => {
+          if (settled) return;
+          settled = true;
+          file.removeListener('error', onEarlyError);
+          callback(null, false, file, size);
+        });
       });
     } else {
       callback(new Error(`Invalid argument given: ${file}`));
@@ -281,8 +335,9 @@ class Kat extends Readable {
         start,
         end,
       }),
-      true,
+      size,
       callback,
+      true,
     );
   }
 
@@ -293,12 +348,43 @@ class Kat extends Readable {
    */
   private _addStream(
     stream: Readable | fs.ReadStream,
-    sized: boolean,
+    size: number | undefined,
     callback: () => void,
+    alreadySized = false,
   ): void {
-    // Take note if the size of this stream is not known.
-    if (!sized) {
-      this._uncertain = true;
+    let trimStart: number | undefined;
+    let trimLimit: number | undefined;
+
+    if (!alreadySized) {
+      if (size == null) {
+        this._uncertain = true;
+      } else if (!this._uncertain) {
+        if (this._skip) {
+          callback();
+          return;
+        }
+
+        const streamStart = this._sized;
+        const streamEnd = streamStart + size - 1;
+        this._sized += size;
+
+        if (streamEnd < this.options.start) {
+          callback();
+          return;
+        }
+        if (this.options.end <= streamEnd) {
+          this._skip = true;
+        }
+
+        const startOffset = Math.max(0, this.options.start - streamStart);
+        if (startOffset > 0) trimStart = startOffset;
+        if (this.options.end < streamEnd) {
+          trimLimit = Math.max(
+            0,
+            this.options.end - streamStart - startOffset + 1,
+          );
+        }
+      }
     }
 
     // Whether this stream is a file or not. Not set by openQueue because
@@ -319,6 +405,9 @@ class Kat extends Readable {
       // Stream is not yet readable until it fires
       // the `readable` event.
       readable: false,
+
+      trimStart,
+      trimLimit,
     };
 
     // When an error occurs, stop if `options.continueOnErr` is `false`.
@@ -472,9 +561,22 @@ class Kat extends Readable {
       this.bytesRead += data.length;
       this.pos += data.length;
 
-      // Check if there is any uncertainty if this data should be emitted
-      // in case `start` and `end` options were given.
-      if (oldPos >= this._sized) {
+      const usesTrim = current.trimStart != null || current.trimLimit != null;
+
+      if (usesTrim) {
+        if (current.trimStart) {
+          const skip = Math.min(current.trimStart, data.length);
+          current.trimStart -= skip;
+          data = sliceData(data, skip);
+        }
+        if (current.trimLimit != null) {
+          const take = Math.min(current.trimLimit, data.length);
+          data = sliceData(data, 0, take);
+          current.trimLimit -= take;
+        }
+      } else if (oldPos >= this._sized) {
+        // Check if there is any uncertainty if this data should be emitted
+        // in case `start` and `end` options were given.
         // Check if `start` is in this data read.
         if (this.options.start > oldPos) {
           // Skip this data read if `start` is in a later one.
@@ -504,8 +606,8 @@ class Kat extends Readable {
         this._waiting = readSize - data.length;
       }
 
-      // End stream if end will be reached on this `data` event reached.
-      if (this.options.end < this.pos) {
+      const trimFinished = usesTrim && current.trimLimit === 0;
+      if (trimFinished || (!usesTrim && this.options.end < this.pos)) {
         this._ended = true;
 
         if (current.stream instanceof fs.ReadStream) {
@@ -588,6 +690,8 @@ namespace Kat {
     path: string | number;
     stream: Readable | fs.ReadStream;
     readable: boolean;
+    trimStart?: number;
+    trimLimit?: number;
     onreadable?: () => void;
     onend?: () => void;
     cleanup?: () => void;

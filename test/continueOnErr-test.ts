@@ -1,6 +1,7 @@
 import assert from 'node:assert';
 import fs from 'node:fs';
 import path from 'node:path';
+import { PassThrough } from 'node:stream';
 import Kat from '../src';
 
 const file1 = path.join(__dirname, 'files', 'file1.txt');
@@ -51,6 +52,70 @@ describe('Try to concat a nonexistant file with continueOnErr', () => {
           assert.equal(data, 'world!!\n');
           done();
         });
+      });
+
+      it('Continues after an added stream errors', (done) => {
+        const stream = new PassThrough();
+        const kat = new Kat(stream, file2, { continueOnErr: true });
+        let data = '';
+        let err: Error | undefined;
+
+        kat.on('data', (chunk: Buffer | string) => {
+          data += chunk.toString();
+        });
+        kat.once('start', () => {
+          process.nextTick(() => stream.emit('error', new Error('late')));
+        });
+        kat.on('error', (e: Error) => {
+          err = e;
+        });
+        kat.on('end', () => {
+          assert.ok(err);
+          assert.equal(err.message, 'late');
+          assert.equal(data, 'world!!\n');
+          done();
+        });
+      });
+
+      it('Handles a stream error before length inference finishes', (done) => {
+        const originalStat = fs.stat;
+        const stream = fs.createReadStream(file1);
+        (
+          fs as unknown as {
+            stat: (
+              file: fs.PathLike,
+              callback: (err: Error | null, stat?: fs.Stats) => void,
+            ) => void;
+          }
+        ).stat = (file, callback) => {
+          if (file === stream.path) {
+            setTimeout(() => {
+              (fs as unknown as { stat: typeof fs.stat }).stat = originalStat;
+              callback(null, { isFile: () => true, size: 6 } as fs.Stats);
+            }, 20);
+          } else {
+            originalStat(file, callback);
+          }
+        };
+
+        const kat = new Kat(stream, file2, { continueOnErr: true });
+        let data = '';
+        let err: Error | undefined;
+        kat.on('data', (chunk: Buffer | string) => {
+          data += chunk.toString();
+        });
+        kat.on('error', (e: Error) => {
+          err = e;
+        });
+        kat.on('end', () => {
+          stream.destroy();
+          assert.ok(err);
+          assert.equal(err.message, 'early');
+          assert.equal(data, 'world!!\n');
+          setTimeout(done, 30);
+        });
+
+        setTimeout(() => stream.emit('error', new Error('early')), 0);
       });
     });
   });

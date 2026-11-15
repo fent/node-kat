@@ -57,6 +57,62 @@ describe('Add a stream that emits an error', () => {
     });
     kat.resume();
   });
+
+  it('Handles a stream error while inferring length', (done) => {
+    const kat = new Kat();
+    const stream = fs.createReadStream(file1);
+    const originalStat = fs.stat;
+    let statCallback:
+      | ((err: Error | null, stat?: fs.Stats) => void)
+      | undefined;
+
+    (
+      fs as unknown as {
+        stat: (
+          file: fs.PathLike,
+          callback: (err: Error | null, stat?: fs.Stats) => void,
+        ) => void;
+      }
+    ).stat = (_file, callback) => {
+      statCallback = callback;
+    };
+
+    (
+      kat as unknown as {
+        _openWorker: (
+          context: { injected: boolean; inject: (list: string[]) => void },
+          file: string | fs.ReadStream,
+          callback: (err?: Error | null) => void,
+        ) => void;
+      }
+    )._openWorker(
+      { injected: false, inject: () => undefined },
+      stream,
+      (err?: Error | null) => {
+        (fs as unknown as { stat: typeof fs.stat }).stat = originalStat;
+        assert.equal(err?.message, 'early');
+        statCallback?.(null, { isFile: () => true, size: 6 } as fs.Stats);
+        stream.emit('error', new Error('again'));
+        stream.destroy();
+        done();
+      },
+    );
+
+    setTimeout(() => stream.emit('error', new Error('early')), 0);
+  });
+
+  it('Kat emits an error from an already added stream', (done) => {
+    const stream = fs.createReadStream(file1);
+    const kat = new Kat(stream);
+    kat.once('start', () => {
+      stream.emit('error', new Error('late'));
+    });
+    kat.on('error', (err: Error) => {
+      assert.equal(err.message, 'late');
+      done();
+    });
+    kat.resume();
+  });
 });
 
 describe('Try to add file after stream finishes', () => {
