@@ -6,5 +6,5 @@
     "sourceMap": true,
     "outDir": "./dist"
   },
-  "files": ["src/index.ts", "src/types/queue2.d.ts"]
+  "files": ["src/index.ts"]
 }

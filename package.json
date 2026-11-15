@@ -27,7 +27,7 @@
     "test:package": "mocha --require ts-node/register test/export-test.ts"
   },
   "dependencies": {
-    "queue2": "~0.2.1"
+    "queue2": "^0.3.1"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.5.15",

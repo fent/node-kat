@@ -1,4 +1,3 @@
-/// <reference path="./types/queue2.d.ts" />
 import fs from 'node:fs';
 import { IncomingMessage } from 'node:http';
 import path from 'node:path';
@@ -8,6 +7,11 @@ import Queue2 from 'queue2';
 type KatOptions = Kat.KatOptions;
 type KatFile = Kat.KatFile;
 type StreamData = Kat.StreamData;
+type OpenQueue = Queue2<
+  [file: string | Readable],
+  | [isFile: true, file: string, size: number]
+  | [isFile: false, file: string | Readable, size: number | undefined]
+>;
 
 /**
  * Returns true if obj is a readable stream.
@@ -71,7 +75,7 @@ class Kat extends Readable {
   public bytesRead: number;
   public pos: number;
   private _sized: number;
-  private _openQueue: Queue2;
+  private _openQueue: OpenQueue;
   private _queue: StreamData[];
   private _files: KatFile[];
   private _totalFiles: number;
@@ -144,7 +148,7 @@ class Kat extends Readable {
     const kat = this;
     this._openQueue = new Queue2(
       function worker1(
-        this: { injected: boolean; inject: (list: string[]) => void },
+        this: Queue2.Worker1Context,
         file: string | Readable,
         callback: (
           err?: Error | null,
@@ -158,13 +162,13 @@ class Kat extends Readable {
       (
         isFile: boolean,
         file: string | Readable,
-        size: number,
+        size: number | undefined,
         callback: () => void,
       ) => {
         if (!file) {
           callback();
         } else if (isFile) {
-          this._addFile(file as string, size, callback);
+          this._addFile(file as string, size as number, callback);
         } else {
           this._addStream(file as Readable, size, callback);
         }
@@ -203,7 +207,7 @@ class Kat extends Readable {
    * @param context Queue worker context with inject method.
    */
   private _openWorker(
-    context: { injected: boolean; inject: (list: string[]) => void },
+    context: Queue2.Worker1Context,
     file: string | Readable,
     callback: (
       err?: Error | null,
@@ -212,11 +216,6 @@ class Kat extends Readable {
       size?: number,
     ) => void,
   ): void {
-    if (!this.readable) {
-      callback();
-      return;
-    }
-
     if (typeof file === 'string') {
       fs.stat(file, (err, stat) => {
         if (err) {
